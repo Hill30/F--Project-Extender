@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define ProductVersion="1.0.0" ?>
+  <?define ProductVersionTitle="1.0.0.0" ?>
+  <?define VisualStudioRegistryRoot2008 = "Software\Microsoft\VisualStudio\9.0" ?>
+  <?define VisualStudioRegistryRoot2010 = "Software\Microsoft\VisualStudio\10.0" ?>
+  <?define UpgradeCode="{EB7EA168-9F1A-45EF-8EDB-06AC4E4C69D6}"?>
+  <Product Id="FDEC07EB-0817-4B10-850C-3DDC05AAD540" Name="Project Extender $(var.ProductVersionTitle)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Hill30" UpgradeCode="$(var.UpgradeCode)">
+    <Package InstallerVersion="200" Compressed="yes" />
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+    <Upgrade Id="$(var.UpgradeCode)">
+      <!--<UpgradeVersion Minimum="$(var.ProductVersion)" IncludeMinimum="no" OnlyDetect="yes" Language="1033" Property="NEWPRODUCTFOUND" />-->
+      <UpgradeVersion Minimum="0.9.0" IncludeMinimum="yes" Maximum="$(var.ProductVersion)" IncludeMaximum="yes" Language="1033" Property="UPGRADEFOUND" />
+    </Upgrade>
+    <PropertyRef Id="NETFRAMEWORK35_SP_LEVEL" />
+    <Property Id="ALLUSERS" Value="1" />
+    <Property Id="ENVDIR_2008">
+      <RegistrySearch Id="RL_EnvironmentDir_2008" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Setup\VS" Name="EnvironmentDirectory" Type="directory" />
+    </Property>
+    <Property Id="ENVDIR_2010">
+      <RegistrySearch Id="RL_EnvironmentDir_2010" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\10.0\Setup\VS" Name="EnvironmentDirectory" Type="directory" />
+    </Property>
+    <Property Id="EXTENSIONSHILL30FILES">
+      <DirectorySearch Id="hill30filessearch" Path="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill 30\" />
+    </Property>
+    <Property Id="EXTENSIONSFILES">
+      <DirectorySearch Id="extensionsfilessearch" Path="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\" />
+    </Property>
+    <Property Id="VS2008FOUND">
+      <RegistrySearch Id="VS2008found" Type="raw" Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0" Name="InstallDir" />
+    </Property>
+    <Property Id="VS2008ITEMTEMPLATESLOCATION">
+      <RegistrySearch Id="UserItemTemplatesLocation2008" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\9.0" Name="UserItemTemplatesLocation" />
+    </Property>
+    <Property Id="VS2008PROJECTTEMPLATESLOCATION">
+      <RegistrySearch Id="UserProjectTemplatesLocation2008" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\9.0" Name="UserProjectTemplatesLocation" />
+    </Property>
+    <Property Id="VS2010FOUND">
+      <RegistrySearch Id="VS2010found" Type="raw" Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0" Name="InstallDir" />
+    </Property>
+    <Property Id="VS2010ITEMTEMPLATESLOCATION">
+      <RegistrySearch Id="UserItemTemplatesLocation2010" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserItemTemplatesLocation" />
+    </Property>
+    <Property Id="VS2010PROJECTTEMPLATESLOCATION">
+      <RegistrySearch Id="UserProjectTemplatesLocation2010" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserProjectTemplatesLocation" />
+    </Property>
+    <Property Id="DEVENV_EXE_PATH2008">
+      <RegistrySearch Id="RegSearch_DevenvExe_Path2008" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2008)\Setup\VS" Name="EnvironmentPath" Type="raw" />
+    </Property>
+    <Property Id="DEVENV_EXE_PATH2010">
+      <RegistrySearch Id="RegSearch_DevenvExe_Path2010" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2010)\Setup\VS" Name="EnvironmentPath" Type="raw" />
+    </Property>
+    <!--<Condition Message="This application requires Visual Studio 2008. Please install the Visual Studio 2008 then run this installer again.">Installed OR VS2008FOUND</Condition>-->
+    <Condition Message="This application requires .NET Framework 3.5SP1. Please install the .NET Framework 3.5SP1 then run this installer again."><![CDATA[Installed OR (NETFRAMEWORK35_SP_LEVEL and NOT NETFRAMEWORK35_SP_LEVEL = "#0")]]></Condition>
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" Overridable="yes" />
+    <WixVariable Id="WixUIBannerBmp" Value="bitmaps\bannrbmp.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="bitmaps\dlgbmp.bmp" />
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!--<Directory Id="EXTENSIONSFILES" >
+        <Directory Id="EXTENSIONSHILL30" Name="Hill30">
+          <Directory Id="PROJECTEXTENDER" Name="ProjectExtender">
+            <Component Id="ProjectExtender2010Files" Guid="AB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
+              <File Id="ProjectExtender_Extension_.dll" Name="ProjectExtender.dll" Source="lib\ProjectExtender.dll" DiskId="1" />
+              <File Id="ProjectExtender.pkgdef" Name="ProjectExtender.pkgdef" Source="lib\ProjectExtender.pkgdef" DiskId="1" />
+              <File Id="extensionExtender.vsixmanifest" Name="extension.vsixmanifest" Source="lib\extensionExtender.vsixmanifest" DiskId="1" />
+              <RegistryValue Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Name="ProjectExtender..a711dab5-37eb-48d7-94bf-3fb3c92e9b43,1.0" Type="string" Value="C:\Users\kskrygan\AppData\Local\Microsoft\VisualStudio\10.0\Extensions\Hill30\ProjectExtender\" KeyPath="yes" />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>-->
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="HILL30FILES" Name="Hill30">
+          <Directory Id="INSTALLDIR" Name="ProjectExtender">
+            <Component Id="ProjectExtenderFiles" Guid="FB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
+              <File Id="ProjectExtender.dll" Name="ProjectExtender.dll" Source="lib\ProjectExtender.dll" DiskId="1" />
+              <RegistryValue Root="HKLM" Key="Software\Hill30\ProjectExtender" Name="InstallDir" Type="string" Value="[INSTALLDIR]" KeyPath="yes" />
+            </Component>
+            <Component Id="ReadmeProjectExtender" Guid="2F2DC3B8-A256-4AF2-B1D9-20C89AF5645A">
+              <File Id="ReadmeProjectExtnder" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+      <Component Id="RegistryExtenderVSX2008" DiskId="1" Guid="3F720FC6-EC7C-44E2-BEE4-8130CE1B3F09">
+        <?include ExtenderReg.wxi?>
+      </Component>
+    </Directory>
+   
+    <Feature Id="ProductFeature" Level="1">
+      <ComponentRef Id="ProjectExtenderFiles" />
+      <ComponentRef Id="ReadmeProjectExtender" />
+    </Feature>
+
+    <Feature Id="Extender2008" Title="Visual Studio 2008 integration" Level="1">
+      <ComponentRef Id="RegistryExtenderVSX2008" />
+    </Feature>
+
+    <!--<Feature Id="Extender2010" Title="Visual Studio 2010 integration" Level="1">
+      <ComponentRef Id="ProjectExtender2010Files" />
+    </Feature>-->
+
+    <!--VS2010 commented-->
+    <!--<Binary Id="EditFiles" SourceFile="versionWriterFull.exe" />-->
+    <!--<CustomAction Id="UninstallDesignerFiles" Directory="PROJECTEXTENDER" ExeCommand="&quot;cmd.exe&quot; /c rmdir /s /q &quot;NDjangoDesigner&quot;" Return="ignore"/>-->
+    <!--<CustomAction BinaryKey="EditFiles" ExeCommand="&quot;C:\Users\kskrygan\AppData\Local\Microsoft\VisualStudio\10.0\Extensions\Hill30\ProjectExtender\ProjectExtender.pkgdef&quot;" Id="EditProjectExtenderPkgdef" Return="ignore"/>-->
+    <CustomAction Id="CA_DevenvSetup2008" Property="DEVENV_EXE_PATH2008" ExeCommand="/setup"  Impersonate="no" Execute="deferred" />
+    <!--<CustomAction Id="CA_DevenvSetup2010" Property="DEVENV_EXE_PATH2010" ExeCommand="/setup"  Impersonate="no" Execute="deferred" />-->
+    <InstallExecuteSequence>
+      <Custom Action="CA_DevenvSetup2008" Before="InstallFinalize" ><![CDATA[(VS2008NEEDED <> NULL) OR REMOVE]]></Custom>
+      <!--<Custom Action="UninstallDesignerFiles" After="InstallInitialize"><![CDATA[REMOVE]]></Custom>-->
+      <!--<Custom Action="EditProjectExtenderPkgdef" After="InstallFinalize">
+        <![CDATA[(Not Installed OR (Installer AND REMOVE <> "ALL"))]]>
+      </Custom>-->
+      <RemoveExistingProducts After="InstallInitialize" />
+    </InstallExecuteSequence>
+    
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <UI>
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="InstallDir" />
+      <DialogRef Id="BrowseDlg" />
+      <DialogRef Id="DiskCostDlg" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+      <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
+      <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+      <Publish Dialog="WelcomeDlgCustom" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+      <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="WelcomeDlgCustom">1</Publish>
+      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallDirDlgCustom">LicenseAccepted = "1"</Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="2">1</Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID="1"]]></Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+      <Publish Dialog="InstallDirDlgCustom" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2">1</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="InstallDirDlgCustom" Order="1">NOT Installed</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed</Publish>
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+      <Property Id="ARPNOMODIFY" Value="1" />
+      <Dialog Id="WelcomeDlgCustom" Width="370" Height="270" Title="!(loc.WelcomeDlg_Title)">
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+        <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="!(loc.WelcomeDlgBitmap)" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="!(loc.WixUIBack)" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Description" Type="Text" X="135" Y="105" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgDescription)" />
+        <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgTitle)" />
+        <Control Type="Text" Width="220" Height="60" X="135" Y="116" Id="FSharpNOTE" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}NOTE: This application requires FSharp 2.0" Hidden="yes" />
+        <Control Type="Text" Id="Note" Width="192" Height="22" X="135" Y="79" Transparent="yes">
+          <Text>This application was developed for using with .NET Framework 3.5 and Visual Studio 2008 or Visual Studio 2010.</Text>
+        </Control>
+      </Dialog>
+      <Dialog Id="InstallDirDlgCustom" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)">
+          <Publish Event="AddLocal" Value="ALL">1</Publish>
+        </Control>
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallDirDlgDescription)" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.InstallDirDlgTitle)" />
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallDirDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="FolderLabel" Type="Text" X="20" Y="60" Width="290" Height="30" NoPrefix="yes" Text="!(loc.InstallDirDlgFolderLabel)" />
+        <Control Id="Folder" Type="PathEdit" X="20" Y="100" Width="320" Height="18" Property="WIXUI_INSTALLDIR" Indirect="yes"/>
+        <Control Id="ChangeFolder" Type="PushButton" X="20" Y="120" Width="56" Height="17" Text="!(loc.InstallDirDlgChange)"/>
+      </Dialog>
+      <InstallUISequence>
+        <Show Dialog="WelcomeDlgCustom" Before="ProgressDlg">NOT Installed</Show>
+      </InstallUISequence>
+    </UI>
+
+    <UIRef Id="WixUI_Common" />
+  </Product>
+</Wix>

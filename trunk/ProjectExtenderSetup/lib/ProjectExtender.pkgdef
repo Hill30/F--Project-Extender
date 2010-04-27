@@ -1,0 +1,33 @@
+Windows Registry Editor Version 5.00
+
+[$RootKey$\InstalledProducts\ProjectExtenderPackage]
+@="#110"
+"Package"="{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}"
+"ProductDetails"="#112"
+"PID"="1.0"
+"LogoID"="#400"
+[$RootKey$\Packages\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}]
+@="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"InprocServer32"="%windir%\\system32\\mscoree.dll"
+"Class"="FSharp.ProjectExtender.ProjectExtenderPackage"
+"Assembly"="ProjectExtender, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+[$RootKey$\Menus]
+"{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}"=", 1000, 1"
+[$RootKey$\CLSID\{a5fc3bbd-8795-42d0-aa55-e65fe992378e}]
+@="FSharp.ProjectExtender.Page"
+"InprocServer32"="%windir%\\system32\\mscoree.dll"
+"Class"="FSharp.ProjectExtender.Page"
+"CodeBase"="[EXTENDERDIR]ProjectExtender.dll"
+"ThreadingModel"="Both"
+[$RootKey$\Projects\{5b89fcc2-c9f6-49a8-8f8d-eddcc3fdc9e9}]
+@="Factory"
+"DisplayName"="ProjectExtender"
+"Package"="{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}"
+"DefaultProjectExtension"="fsproj"
+"ProjectTemplatesDir"="[EXTENDERDIR].\\NullPath"
+"Language(VsTemplate)"="FSharp"
+[$RootKey$\NewProjectTemplates\TemplateDirs\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}\/1]
+@="ProjectExtender"
+"SortPriority"=dword:00000064
+"TemplatesDir"="[EXTENDERDIR].\\NullPath"
+
