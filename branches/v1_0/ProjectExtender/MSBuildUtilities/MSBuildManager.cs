@@ -121,9 +121,7 @@ namespace FSharp.ProjectExtender
                         // if offset = 0 this item does not have to be moved
                         if (offset > 0)
                         {
-                            // we only will need to moev back the items to be compiled - the rest of them will be moved permanently
-                            //if (item.BuildItem.Name == "Compile")
-                                item.BuildItem.SetMetadata(moveByTag, offset.ToString());
+                            item.BuildItem.SetMetadata(moveByTag, offset.ToString());
 
                             // add the item to the fixup list
                             fixup_list.Add(new Tuple<BuildElement, int, int>(item, offset, count - 1));

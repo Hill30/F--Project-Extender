@@ -13,11 +13,11 @@ namespace FSharp.ProjectExtender.Project
         protected ShadowFolderNode(ItemList items, ItemNode parent, uint itemId, Constants.ItemNodeType type, string path)
             : base(items, parent, itemId, type, path)
         {
-            uint child = items.GetNodeFirstChild(itemId);
+            uint child = items.Project.GetNodeChild(itemId);
             while (child != VSConstants.VSITEMID_NIL)
             {
                 CreateChildNode(child);
-                child = items.GetNodeSibling(child);
+                child = items.Project.GetNodeSibling(child);
             }
             MapChildren();
         }

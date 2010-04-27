@@ -117,24 +117,14 @@ namespace FSharp.ProjectExtender.Project
         ///internal static void MoveFileUp(HierarchyNode toMove, HierarchyNode toMoveBefore, ProjectNode projectNode);
         /// </summary>
         /// <param name="dir"></param>
-        internal void Move(CompileOrderViewer.Direction dir)
+        internal void Move(Direction direction)
         {
-            Microsoft.VisualStudio.FSharp.ProjectSystem.ProjectNode FSProject = GlobalServices.getFSharpProjectNode(GlobalServices.get_current_project());
-            Assembly assembly = Assembly.LoadFrom("FSharp.ProjectSystem.FSharp.dll");
-            BindingFlags bf = BindingFlags.NonPublic | BindingFlags.Static  | BindingFlags.InvokeMethod ;
-            string method = (dir == CompileOrderViewer.Direction.Down) ? "MoveDown" : "MoveUp";
-            try
-            {
-                //assembly.GetType("Microsoft.VisualStudio.FSharp.ProjectSystem.MSBuildUtilities", true, false)
-                  //  .InvokeMember(method, bf, null, null, new object[] { Path, this, FSProject.NodeFromItemId(this.ItemId), FSProject });
-                Type FSharpProjectNode = assembly.GetType("Microsoft.VisualStudio.FSharp.ProjectSystem.FSharpPojectNode",true);
-                assembly.GetType("Microsoft.VisualStudio.FSharp.ProjectSystem.FSharpFileNode", true, false)
-                  .InvokeMember(method, bf, null, null, new object[] { FSProject.NodeFromItemId(this.ItemId), FSProject});
-
-
-            }
-            catch (Exception ex) { };
+            Items.Project.ProjectProxy.Move(this, direction);
         }
+
+        public enum Direction { Up, Down }
+
+
         #region IEnumerable<ItemNode> Members
 
         public IEnumerator<ItemNode> GetEnumerator()

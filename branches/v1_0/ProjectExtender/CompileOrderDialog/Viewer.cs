@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
+using FSharp.ProjectExtender.Project;
 
 namespace FSharp.ProjectExtender
 {
@@ -101,24 +102,22 @@ namespace FSharp.ProjectExtender
         private void MoveUp_Click(object sender, EventArgs e)
         {
             if (CompileItems.SelectedNode != null)
-                MoveElement(CompileItems.SelectedNode, Direction.Up);
+                MoveElement(CompileItems.SelectedNode, ItemNode.Direction.Up);
         }
 
 
         private void MoveDown_Click(object sender, EventArgs e)
         {
             if (CompileItems.SelectedNode != null)
-                MoveElement(CompileItems.SelectedNode, Direction.Down);
+                MoveElement(CompileItems.SelectedNode, ItemNode.Direction.Down);
         }
-
-        public enum Direction { Up, Down }
 
         /// <summary>
         /// Moves a compile item in the compilation order list one position up or down
         /// </summary>
         /// <param name="n">item to move</param>
         /// <param name="dir">direction</param>
-        private void MoveElement(TreeNode n, Direction dir)
+        private void MoveElement(TreeNode n, ItemNode.Direction dir)
         {
             if (!CompileItems.Nodes.Contains(n))
                 return;
@@ -127,12 +126,12 @@ namespace FSharp.ProjectExtender
             int new_index = 0;
             switch (dir)
             {
-                case Direction.Up:
+                case ItemNode.Direction.Up:
                     if (n.Index <= 0) // already at the top - nowehere to go up
                         return;
                     new_index = n.Index - 1;
                     break;
-                case Direction.Down:
+                case ItemNode.Direction.Down:
                     if (n.Index >= CompileItems.Nodes.Count - 1) // already at the bottom - nowehere to go down
                         return;
                     new_index = n.Index + 1;

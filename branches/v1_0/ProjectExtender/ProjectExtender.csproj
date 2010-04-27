@@ -104,6 +104,7 @@
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />
     <Compile Include="Project\Excluded\ExcludedNode.cs" />
+    <Compile Include="Project\ProjectNodeProxy.cs" />
     <Compile Include="Project\ShadowFileNode.cs" />
     <Compile Include="Project\RootItemNode.cs" />
     <Compile Include="Project\ShadowFolderNode.cs" />

@@ -27,19 +27,22 @@ namespace FSharp.ProjectExtender
         uint hierarchy_event_cookie = (uint)ShellConstants.VSCOOKIE_NIL;
         uint document_tracker_cookie = (uint)ShellConstants.VSCOOKIE_NIL;
         ItemList itemList;
-        public string ProjectDir { get; set; }
-        Microsoft.VisualStudio.FSharp.ProjectSystem.ProjectNode FSProjectManager;
         IOleCommandTarget innerTarget;
         IVsProject innerProject;
         bool show_all = false;
         bool renaimng_in_progress = false;
         bool exclude_in_progress = false;
+        ProjectNodeProxy projectProxy;
 
         public ProjectManager()
             : base()
         { }
 
         public bool ExcludeInProgress { get { return exclude_in_progress; } }
+
+        public string ProjectDir { get; set; }
+
+        internal ProjectNodeProxy ProjectProxy { get { return projectProxy; } }
 
         /// <summary>
         /// Sets the service provider from which to access the services. 
@@ -60,12 +63,13 @@ namespace FSharp.ProjectExtender
         {
             base.OnAggregationComplete();
 
-            FSProjectManager = GlobalServices.getFSharpProjectNode(innerProject);
-            BuildManager = new MSBuildManager(FSProjectManager.BuildProject);
             string name;
             innerProject.GetMkDocument(VSConstants.VSITEMID_ROOT,out name);
             ProjectDir = name.Substring(0,name.LastIndexOf('\\'));
+            projectProxy = new ProjectNodeProxy(innerProject);
+            BuildManager = new MSBuildManager(projectProxy.BuildProject);
             itemList = new ItemList(this);
+
             hierarchy_event_cookie = AdviseHierarchyEvents(itemList);
             ErrorHandler.ThrowOnFailure(GlobalServices.documentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));
         }
@@ -200,47 +204,9 @@ namespace FSharp.ProjectExtender
             return (uint)(int)result;
         }
 
-        /// <summary>
-        /// Gets the specified metadata element for a given build item
-        /// </summary>
-        /// <param name="itemId">ID for the item</param>
-        /// <param name="property">metadata element name</param>
-        /// <returns>metadata element value</returns>
-        internal string GetMetadata(uint itemId, string property)
-        {
-            object browseObject;
-            ErrorHandler.ThrowOnFailure(base.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_BrowseObject, out browseObject));
-            return (string)browseObject.GetType().GetMethod("GetMetadata").Invoke(browseObject, new object[] { property });
-        }
-
-        /// <summary>
-        /// Sets the specified metadata element for a given build item
-        /// </summary>
-        /// <param name="itemId">ID for the item</param>
-        /// <param name="property">metadata element name</param>
-        /// <param name="value">new element value</param>
-        internal void SetMetadata(uint itemId, string property, string value)
-        {
-            object browseObject;
-            ErrorHandler.ThrowOnFailure(base.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_BrowseObject, out browseObject));
-            browseObject.GetType().GetMethod("SetMetadata").Invoke(browseObject, new object[] { property, value });
-        }
-
         internal void InvalidateParentItems(IEnumerable<uint> itemIds)
         {
-            var updates = new Dictionary<Microsoft.VisualStudio.FSharp.ProjectSystem.HierarchyNode, Microsoft.VisualStudio.FSharp.ProjectSystem.HierarchyNode>(); 
-            foreach (var itemId in itemIds)
-            {
-                var hierarchyNode = FSProjectManager.NodeFromItemId(itemId);
-                updates[hierarchyNode.Parent] = hierarchyNode;
-            }
-
-            uint lastItemId = VSConstants.VSITEMID_NIL;
-            foreach (var item in updates)
-            {
-                item.Value.OnInvalidateItems(item.Key);
-                lastItemId = item.Value.ID;
-            }
+            uint lastItemId = projectProxy.InvalidateParentItems(itemIds);
 
             if (lastItemId != VSConstants.VSITEMID_NIL)
                 GlobalServices.solutionExplorer.ExpandItem(this, lastItemId, EXPANDFLAGS.EXPF_SelectItem);
@@ -276,9 +242,7 @@ namespace FSharp.ProjectExtender
         /// </remarks>
         public void RefreshSolutionExplorer(IEnumerable<ItemNode> nodes)
         {
-            // as kludgy as it looks this is the only way I found to force the
-            // refresh of the solution explorer window
-            FSProjectManager.FirstChild.OnInvalidateItems(FSProjectManager);
+            projectProxy.RefreshSolutionExplorer();
 
             bool first = true;
             foreach (var node in itemList.RemapNodes(nodes))
@@ -291,35 +255,6 @@ namespace FSharp.ProjectExtender
                     GlobalServices.solutionExplorer.ExpandItem(this, node.ItemId, EXPANDFLAGS.EXPF_AddSelectItem);
         }
 
-        /// <summary>
-        /// Adds an existing file to the project in response to the "Include In Project" command
-        /// </summary>
-        /// <param name="parentID"></param>
-        /// <param name="Path"></param>
-        /// <returns></returns>
-        internal int AddFileItem(uint parentID, string Path)
-        {
-            Microsoft.VisualStudio.FSharp.ProjectSystem.HierarchyNode parent;
-            if (parentID == VSConstants.VSITEMID_ROOT)
-                parent = FSProjectManager;
-            else
-                parent = FSProjectManager.NodeFromItemId(parentID);
-
-            var node = FSProjectManager.AddNewFileNodeToHierarchy(parent, Path);
-
-            return VSConstants.S_OK;
-        }
-
-        /// <summary>
-        /// Adds an existing folder to the project in response to the "Include In Project" command
-        /// </summary>
-        /// <param name="parentID"></param>
-        /// <param name="Path"></param>
-        /// <returns></returns>
-        internal uint AddFolderItem(string Path)
-        {
-            return FSProjectManager.CreateFolderNodes(Path).ID;
-        }
 
         #region IProjectManager Members
         public Project.ItemList Items { get {return itemList; }}

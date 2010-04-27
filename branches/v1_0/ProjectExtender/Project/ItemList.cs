@@ -28,7 +28,6 @@ namespace FSharp.ProjectExtender.Project
     /// </remarks>
     public class ItemList : IVsHierarchyEvents
     {
-        ProjectManager project;
         IVsHierarchy root_hierarchy;
         Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
         internal Dictionary<string, ItemNode> itemKeyMap = new Dictionary<string, ItemNode>();
@@ -36,6 +35,7 @@ namespace FSharp.ProjectExtender.Project
         public const int ExcludedNodeStart = 0x0100000;
         uint nextItemId = ExcludedNodeStart;
 
+        public ProjectManager Project { get; private set; }
 
         /// <summary>
         /// Initalizes a new instance of the itemlist
@@ -43,7 +43,7 @@ namespace FSharp.ProjectExtender.Project
         /// <param name="project"></param>
         public ItemList(ProjectManager project)
         {
-            this.project = project;
+            this.Project = project;
             root_hierarchy = (IVsHierarchy)project;
             root = CreateNode(VSConstants.VSITEMID_ROOT);
         }
@@ -159,11 +159,6 @@ namespace FSharp.ProjectExtender.Project
                 return VSConstants.E_INVALIDARG;
         }
 
-        internal uint GetNodeFirstChild(uint itemId)
-        {
-            return project.GetNodeChild(itemId);
-        }
-
         internal int GetProperty(uint itemId, int propId, out object property)
         {
             ItemNode node;
@@ -176,11 +171,6 @@ namespace FSharp.ProjectExtender.Project
         internal uint GetNextItemID()
         {
             return nextItemId++;
-        }
-
-        internal uint GetNodeSibling(uint itemId)
-        {
-            return project.GetNodeSibling(itemId);
         }
 
         internal void Register(ItemNode itemNode)
@@ -255,7 +245,7 @@ namespace FSharp.ProjectExtender.Project
             if (itemMap.TryGetValue(itemid, out n))
             {
                 n.Delete();
-                if (project.ExcludeInProgress)
+                if (Project.ExcludeInProgress)
                     n.Parent.SetShowAll(true);
             }
             return VSConstants.S_OK;
@@ -276,7 +266,7 @@ namespace FSharp.ProjectExtender.Project
                     return VSConstants.E_INVALIDARG;
 
                 n.Remap();
-                project.InvalidateParentItems(new uint[] { itemid });
+                Project.InvalidateParentItems(new uint[] { itemid });
             }
             return VSConstants.S_OK;
         }
@@ -308,7 +298,7 @@ namespace FSharp.ProjectExtender.Project
                     {
                         // This is a single selection. Compare hirarchy with our hierarchy and get node from itemid
                         ItemNode node;
-                        if (GlobalServices.IsSameComObject(project, hierarchy) && itemMap.TryGetValue(itemid, out node))
+                        if (GlobalServices.IsSameComObject(Project, hierarchy) && itemMap.TryGetValue(itemid, out node))
                         {
                             selected_nodes.Add(node);
                         }
@@ -324,15 +314,15 @@ namespace FSharp.ProjectExtender.Project
                         bool isSingleHierarchy = (isSingleHierarchyInt != 0);
 
                         // Now loop all selected items and add to the list only those that are selected within this hierarchy
-                        if (!isSingleHierarchy || (isSingleHierarchy && GlobalServices.IsSameComObject(project, hierarchy)))
+                        if (!isSingleHierarchy || (isSingleHierarchy && GlobalServices.IsSameComObject(Project, hierarchy)))
                         {
-                            Debug.Assert(numberOfSelectedItems > 0, "Bad number of selected itemd");
+                            Debug.Assert(numberOfSelectedItems > 0, "Bad number of selected items");
                             VSITEMSELECTION[] vsItemSelections = new VSITEMSELECTION[numberOfSelectedItems];
                             uint flags = (isSingleHierarchy) ? (uint)__VSGSIFLAGS.GSI_fOmitHierPtrs : 0;
                             ErrorHandler.ThrowOnFailure(multiItemSelect.GetSelectedItems(flags, numberOfSelectedItems, vsItemSelections));
                             foreach (VSITEMSELECTION vsItemSelection in vsItemSelections)
                             {
-                                if (isSingleHierarchy || GlobalServices.IsSameComObject(project, vsItemSelection.pHier))
+                                if (isSingleHierarchy || GlobalServices.IsSameComObject(Project, vsItemSelection.pHier))
                                 {
                                     ItemNode node;
                                     if (itemMap.TryGetValue(vsItemSelection.itemid, out node))
@@ -415,8 +405,8 @@ namespace FSharp.ProjectExtender.Project
         internal int IncludeFileItem(ItemNode node)
         {
             node.Delete();
-            int result = project.AddFileItem(node.Parent.ItemId, node.Path);
-            project.RefreshSolutionExplorer(new ItemNode[] { node });
+            int result = Project.ProjectProxy.AddFileItem(node.Parent.ItemId, node.Path);
+            Project.RefreshSolutionExplorer(new ItemNode[] { node });
             return result;
         }
 
@@ -438,10 +428,10 @@ namespace FSharp.ProjectExtender.Project
                 }
             }
             node.Delete();
-            uint parent = project.AddFolderItem(node.Path);
+            uint parent = Project.ProjectProxy.AddFolderItem(node.Path);
             foreach (var file in files)
-                ErrorHandler.ThrowOnFailure(project.AddFileItem(parent, file));
-            project.RefreshSolutionExplorer(new ItemNode[] { node });
+                ErrorHandler.ThrowOnFailure(Project.ProjectProxy.AddFileItem(parent, file));
+            Project.RefreshSolutionExplorer(new ItemNode[] { node });
             return VSConstants.S_OK;
         }
 
