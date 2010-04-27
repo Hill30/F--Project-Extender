@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!--  This is the file that defines the actual layout and type of the commands.
+        It is divided in different sections (e.g. command definition, command
+        placement, ...), with each defining a specific set of properties.
+        See the comment before each section for more details about how to
+        use it. -->
+
+  <!--  The VSCT compiler (the tool that translates this file into the binary 
+        format that VisualStudio will consume) has the ability to run a preprocessor 
+        on the vsct file; this preprocessor is (usually) the C++ preprocessor, so 
+        it is possible to define includes and macros with the same syntax used 
+        in C++ files. Using this ability of the compiler here, we include some files 
+        defining some of the constants that we will use inside the file. -->
+
+  <!--This is the file that defines the IDs for all the commands exposed by VisualStudio. -->
+  <Extern href="stdidcmd.h"/>
+
+  <!--This header contains the command ids for the menus provided by the shell. -->
+  <Extern href="vsshlids.h"/>
+
+  <!--Definition of some VSCT specific constants. In this sample we use it for the IDs inside the guidOfficeIcon group. -->
+  <Extern href="msobtnid.h"/>
+
+  <!--#include "sharedids.h" -->
+  <Extern href="sharedids.h"/>
+
+
+
+  <!--The Commands section is where we the commands, menus and menu groups are defined.
+      This section uses a Guid to identify the package that provides the command defined inside it. -->
+  <Commands package="guidProjectExtender_DesignerPkg">
+    <!-- Inside this section we have different sub-sections: one for the menus, another  
+    for the menu groups, one for the buttons (the actual commands), one for the combos 
+    and the last one for the bitmaps used. Each element is identified by a command id that  
+    is a unique pair of guid and numeric identifier; the guid part of the identifier is usually  
+    called "command set" and is used to group different command inside a logically related  
+    group; your package should define its own command set in order to avoid collisions  
+    with command ids defined by other packages. -->
+    
+    <!-- In this section you can define new menu groups. A menu group is a container for 
+         other menus or buttons (commands); from a visual point of view you can see the 
+         group as the part of a menu contained between two lines. The parent of a group 
+         must be a menu. -->
+    <Groups>
+    
+      <Group guid="guidProjectExtender_DesignerCmdSet" id="cmdidProjectExtenderGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+      </Group>
+
+      <Group guid="guidProjectExtender_DesignerCmdSet" id="cmdidSolutionExplorerButtons" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_PROJWIN"/>
+      </Group>
+
+    </Groups>
+    
+    <!--Buttons section. -->
+    <!--This section defines the elements the user can interact with, like a menu command or a button 
+        or combo box in a toolbar. -->
+    <!--
+     
+      To define a menu group you have to specify its ID, the parent menu and its display priority.--> 
+          <!--The command is visible and enabled by default. If you need to change the visibility, status, etc, you can use
+          the CommandFlag node.
+          You can add more than one CommandFlag node e.g.:-->
+          <!--<CommandFlag>DefaultInvisible</CommandFlag>
+          <CommandFlag>DynamicVisibility</CommandFlag>-->
+          <!--If you do not want an image next to your command, remove the Icon node or set it to <Icon guid="guidOfficeIcon" id="msotcidNoIcon" /> -->
+
+    <Buttons>
+
+      <Button guid="guidProjectExtender_DesignerCmdSet" id="cmdidProjectExtender" priority="0x0100" type="Button">
+        <Parent guid="guidProjectExtender_DesignerCmdSet" id="cmdidProjectExtenderGroup"/>
+        <Strings>
+          <ButtonText>Enable F# Project Extender</ButtonText>
+        </Strings>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+      </Button>
+
+      <Button guid="guidProjectExtender_DesignerCmdSet" id="cmdidProjectRefresh" priority="0x0200" type="Button">
+        <Parent guid="guidProjectExtender_DesignerCmdSet" id="cmdidSolutionExplorerButtons"/>
+        <Icon guid="guidSHLMainMenu" id="6"/>
+        <Strings>
+          <ButtonText>Refresh</ButtonText>
+        </Strings>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+      </Button>
+
+      <Button guid="guidProjectExtender_DesignerCmdSet" id="cmdidProjectShowAll" priority="0x0100" type="Button">
+        <Parent guid="guidProjectExtender_DesignerCmdSet" id="cmdidSolutionExplorerButtons"/>
+        <Icon guid="guidSharedBmps" id="bmpidShowAllFiles"/>
+        <Strings>
+          <ButtonText>Show All Files</ButtonText>
+        </Strings>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+      </Button>
+
+    </Buttons>
+   
+  </Commands>
+  <VisibilityConstraints>
+    <VisibilityItem guid="guidProjectExtender_DesignerCmdSet" id="cmdidProjectExtender" context="guidFSharp_Project"></VisibilityItem>
+  </VisibilityConstraints>
+
+  <Symbols>
+    <!-- This is the package guid. -->
+    <GuidSymbol name="guidProjectExtender_DesignerPkg" value="{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" />
+    <GuidSymbol name="guidProjectExtenderProject" value="{5B89FCC2-C9F6-49a8-8F8D-EDDCC3FDC9E9}" />
+
+    <!-- The F# Project Type -->
+    <GuidSymbol name="guidFSharp_Project" value="{f2a71f9b-5d33-465a-a702-920d77279786}" />
+
+    <!-- This is the guid used to group the menu commands together -->
+    <GuidSymbol name="guidProjectExtender_DesignerCmdSet" value="{7bc39d92-dded-46ae-b491-075f3ded76aa}">
+      <IDSymbol name="cmdidProjectExtenderGroup" value="0x1001" />
+      <IDSymbol name="cmdidSolutionExplorerButtons" value="0x1002"/>
+
+      <IDSymbol name="cmdidProjectExtender" value="0x2001" />
+      <IDSymbol name="cmdidProjectRefresh" value="0x2002" />
+      <IDSymbol name="cmdidProjectShowAll" value="0x2003" />
+
+    </GuidSymbol>
+    
+  </Symbols>
+
+</CommandTable>
