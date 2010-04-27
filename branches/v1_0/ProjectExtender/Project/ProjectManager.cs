@@ -27,6 +27,7 @@ namespace FSharp.ProjectExtender
         uint hierarchy_event_cookie = (uint)ShellConstants.VSCOOKIE_NIL;
         uint document_tracker_cookie = (uint)ShellConstants.VSCOOKIE_NIL;
         ItemList itemList;
+        public string ProjectDir { get; set; }
         Microsoft.VisualStudio.FSharp.ProjectSystem.ProjectNode FSProjectManager;
         IOleCommandTarget innerTarget;
         IVsProject innerProject;
@@ -61,7 +62,9 @@ namespace FSharp.ProjectExtender
 
             FSProjectManager = GlobalServices.getFSharpProjectNode(innerProject);
             BuildManager = new MSBuildManager(FSProjectManager.BuildProject);
-
+            string name;
+            innerProject.GetMkDocument(VSConstants.VSITEMID_ROOT,out name);
+            ProjectDir = name.Substring(0,name.LastIndexOf('\\'));
             itemList = new ItemList(this);
             hierarchy_event_cookie = AdviseHierarchyEvents(itemList);
             ErrorHandler.ThrowOnFailure(GlobalServices.documentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));
@@ -319,6 +322,7 @@ namespace FSharp.ProjectExtender
         }
 
         #region IProjectManager Members
+        public Project.ItemList Items { get {return itemList; }}
 
         public MSBuildManager BuildManager { get; private set; }
         

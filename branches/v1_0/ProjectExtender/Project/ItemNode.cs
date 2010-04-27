@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using Microsoft.VisualStudio;
 using System.IO;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -108,7 +109,32 @@ namespace FSharp.ProjectExtender.Project
         internal virtual void SetShowAll(bool show_all)
         {
         }
+        /// <summary>
+        ///internal static void MoveFileAbove(string relativeFileName, HierarchyNode nodeToMoveAbove, ProjectNode projectNode);
+        ///internal static void MoveFileBelow(string relativeFileName, HierarchyNode nodeToMoveBelow, ProjectNode projectNode);
+        ///internal static void MoveFileDown(HierarchyNode toMove, HierarchyNode toMoveAfter, ProjectNode projectNode);
+        ///internal static void MoveFileToBottom(string relativeFileName, ProjectNode projectNode);
+        ///internal static void MoveFileUp(HierarchyNode toMove, HierarchyNode toMoveBefore, ProjectNode projectNode);
+        /// </summary>
+        /// <param name="dir"></param>
+        internal void Move(CompileOrderViewer.Direction dir)
+        {
+            Microsoft.VisualStudio.FSharp.ProjectSystem.ProjectNode FSProject = GlobalServices.getFSharpProjectNode(GlobalServices.get_current_project());
+            Assembly assembly = Assembly.LoadFrom("FSharp.ProjectSystem.FSharp.dll");
+            BindingFlags bf = BindingFlags.NonPublic | BindingFlags.Static  | BindingFlags.InvokeMethod ;
+            string method = (dir == CompileOrderViewer.Direction.Down) ? "MoveDown" : "MoveUp";
+            try
+            {
+                //assembly.GetType("Microsoft.VisualStudio.FSharp.ProjectSystem.MSBuildUtilities", true, false)
+                  //  .InvokeMember(method, bf, null, null, new object[] { Path, this, FSProject.NodeFromItemId(this.ItemId), FSProject });
+                Type FSharpProjectNode = assembly.GetType("Microsoft.VisualStudio.FSharp.ProjectSystem.FSharpPojectNode",true);
+                assembly.GetType("Microsoft.VisualStudio.FSharp.ProjectSystem.FSharpFileNode", true, false)
+                  .InvokeMember(method, bf, null, null, new object[] { FSProject.NodeFromItemId(this.ItemId), FSProject});
 
+
+            }
+            catch (Exception ex) { };
+        }
         #region IEnumerable<ItemNode> Members
 
         public IEnumerator<ItemNode> GetEnumerator()

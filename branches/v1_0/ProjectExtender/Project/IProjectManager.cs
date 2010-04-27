@@ -11,6 +11,8 @@ namespace FSharp.ProjectExtender
     public interface IProjectManager
     {
         MSBuildManager BuildManager { get; }
+        Project.ItemList Items {get;}
+        string ProjectDir { get; set; }
         void FlipShowAll();
 
         void Refresh();

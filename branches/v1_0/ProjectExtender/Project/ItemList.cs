@@ -31,8 +31,8 @@ namespace FSharp.ProjectExtender.Project
         ProjectManager project;
         IVsHierarchy root_hierarchy;
         Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
-        Dictionary<string, ItemNode> itemKeyMap = new Dictionary<string, ItemNode>();
-        ItemNode root;
+        internal Dictionary<string, ItemNode> itemKeyMap = new Dictionary<string, ItemNode>();
+        internal ItemNode root;
         public const int ExcludedNodeStart = 0x0100000;
         uint nextItemId = ExcludedNodeStart;
 

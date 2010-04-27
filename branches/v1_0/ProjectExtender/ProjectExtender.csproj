@@ -39,6 +39,9 @@
       <HintPath>..\..\..\..\..\..\Program Files (x86)\FSharp-1.9.9.9\\bin\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.ProjectSystem.Base, Version=2.0.50727.0, Culture=neutral, PublicKeyToken=a19089b1c74d0809, processorArchitecture=MSIL" />
+    <Reference Include="FSharp.ProjectSystem.FSharp, Version=1.9.9.9, Culture=neutral, PublicKeyToken=a19089b1c74d0809, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Build.Engine, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>Microsoft.Build.Engine.dll</HintPath>
       <Name>Microsoft.Build.Engine</Name>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
 
@@ -8,7 +9,6 @@ namespace FSharp.ProjectExtender
     public partial class CompileOrderViewer : UserControl
     {
         IProjectManager project;
-
         public CompileOrderViewer(IProjectManager project)
         {
             this.project = project;
@@ -34,21 +34,32 @@ namespace FSharp.ProjectExtender
                 project.BuildManager.GetElements(item => item.Name == "Compile"))
             {
                         TreeNode compileItem = new TreeNode(element.Path);
-                        compileItem.Tag = element;
+                        compileItem.Tag = ((IProjectManager)project).Items.itemKeyMap[((IProjectManager)project).ProjectDir + "\\" + element.Path];
                         //compileItem.ContextMenuStrip = compileItemMenu;
                         BuildDependencies(compileItem);
                         CompileItems.Nodes.Add(compileItem);
-            }           
+            }
+            /*foreach (Project.ItemNode element in ((IProjectManager)project).Items.root.)
+            {
+                Constants.ItemNodeType nodetype = get_node_type(element.ItemId);
+                if ( nodetype == Constants.ItemNodeType.PhysicalFile)
+                {
+                TreeNode compileItem = new TreeNode(element.Path);
+                compileItem.Tag = element;
+                BuildDependencies(compileItem);
+                CompileItems.Nodes.Add(compileItem);
+                }
+            }*/
         }
 
         private void BuildDependencies(TreeNode node)
         {
             node.Nodes.Clear();
-            string dependencies = ((BuildElement)node.Tag).GetDependencies(); 
-            if (dependencies != null)
+            string dependencies ;//= ((BuildElement)node.Tag).GetDependencies(); 
+            /*if (dependencies != null)
                 foreach (var d in dependencies.Split(','))
                     if (d != "")
-                        node.Nodes.Add(d);
+                        node.Nodes.Add(d);*/
         }
 
         private void CompileItems_AfterSelect(object sender, TreeViewEventArgs e)
@@ -130,7 +141,8 @@ namespace FSharp.ProjectExtender
             if (OnPageUpdated != null)
                 OnPageUpdated(this, EventArgs.Empty);
 
-            ((BuildElement)n.Tag).SwapWith((BuildElement)CompileItems.Nodes[new_index].Tag);
+            //((BuildElement)n.Tag).SwapWith((BuildElement)CompileItems.Nodes[new_index].Tag);
+            ((Project.ItemNode)n.Tag).Move(dir);
 
             // Update the UI (the TreeView)
             CompileItems.Nodes.Remove(n);
