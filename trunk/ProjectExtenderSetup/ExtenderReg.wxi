@@ -4,18 +4,18 @@
   <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\InstalledProducts\ProjectExtenderPackage" Value="#110" Type="string">
     <Registry Name="Package" Value="{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" Type="string" />
     <Registry Name="ProductDetails" Value="#112" Type="string" />
-    <Registry Name="PID" Value="1.0" Type="string" />
+    <Registry Name="PID" Value="0.9" Type="string" />
     <Registry Name="LogoID" Value="#400" Type="string" />
   </Registry>
 
-  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\Packages\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" Value="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" Type="string">
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\Packages\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" Value="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null" Type="string">
     <Registry Name="InprocServer32" Value="[SystemFolder]mscoree.dll" Type="string" />
     <Registry Name="Class" Value="FSharp.ProjectExtender.ProjectExtenderPackage" Type="string" />
-    <Registry Name="Assembly" Value="ProjectExtender, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" Type="string" />
+    <Registry Name="Assembly" Value="ProjectExtender, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null" Type="string" />
     <Registry Name="CodeBase" Value="[INSTALLDIR]ProjectExtender.dll" Type="string" />
     <Registry Name="ID" Value="100" Type="integer" />
     <Registry Name="MinEdition" Value="Standard" Type="string" />
-    <Registry Name="ProductVersion" Value="1.0" Type="string" />
+    <Registry Name="ProductVersion" Value="0.9" Type="string" />
     <Registry Name="ProductName" Value="F# Project System Extender" Type="string" />
     <Registry Name="CompanyName" Value="Hill30 Inc" Type="string" />
   </Registry>

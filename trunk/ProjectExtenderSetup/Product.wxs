@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <?define ProductVersion="1.0.0" ?>
-  <?define ProductVersionTitle="1.0.0.0" ?>
+  <?define ProductVersion="0.9.0" ?>
+  <?define ProductVersionTitle="0.9.0.0" ?>
   <?define VisualStudioRegistryRoot2008 = "Software\Microsoft\VisualStudio\9.0" ?>
   <?define VisualStudioRegistryRoot2010 = "Software\Microsoft\VisualStudio\10.0" ?>
   <?define UpgradeCode="{EB7EA168-9F1A-45EF-8EDB-06AC4E4C69D6}"?>
@@ -72,6 +72,7 @@
         <Directory Id="HILL30FILES" Name="Hill30">
           <Directory Id="INSTALLDIR" Name="ProjectExtender">
             <Component Id="ProjectExtenderFiles" Guid="FB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
+              <RemoveFolder Id="RemoveMain" Directory="INSTALLDIR" On="uninstall" />
               <File Id="ProjectExtender.dll" Name="ProjectExtender.dll" Source="lib\ProjectExtender.dll" DiskId="1" />
               <RegistryValue Root="HKLM" Key="Software\Hill30\ProjectExtender" Name="InstallDir" Type="string" Value="[INSTALLDIR]" KeyPath="yes" />
             </Component>
@@ -163,7 +164,7 @@
         <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgTitle)" />
         <Control Type="Text" Width="220" Height="60" X="135" Y="116" Id="FSharpNOTE" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}NOTE: This application requires FSharp 2.0" Hidden="yes" />
         <Control Type="Text" Id="Note" Width="192" Height="22" X="135" Y="79" Transparent="yes">
-          <Text>This application was developed for using with .NET Framework 3.5 and Visual Studio 2008 or Visual Studio 2010.</Text>
+          <Text>This application was developed for using with .NET Framework 3.5 and Visual Studio 2008.</Text>
         </Control>
       </Dialog>
       <Dialog Id="InstallDirDlgCustom" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">

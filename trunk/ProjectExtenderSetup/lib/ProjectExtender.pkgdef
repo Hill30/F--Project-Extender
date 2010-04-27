@@ -4,13 +4,13 @@ Windows Registry Editor Version 5.00
 @="#110"
 "Package"="{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}"
 "ProductDetails"="#112"
-"PID"="1.0"
+"PID"="0.9"
 "LogoID"="#400"
 [$RootKey$\Packages\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}]
-@="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+@="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null"
 "InprocServer32"="%windir%\\system32\\mscoree.dll"
 "Class"="FSharp.ProjectExtender.ProjectExtenderPackage"
-"Assembly"="ProjectExtender, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"Assembly"="ProjectExtender, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null"
 [$RootKey$\Menus]
 "{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}"=", 1000, 1"
 [$RootKey$\CLSID\{a5fc3bbd-8795-42d0-aa55-e65fe992378e}]
