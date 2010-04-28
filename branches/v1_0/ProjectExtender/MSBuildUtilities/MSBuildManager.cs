@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Microsoft.Build.BuildEngine;
 using FSharp.ProjectExtender.Project;
-using BuildProject = Microsoft.Build.BuildEngine.Project;
 
 namespace FSharp.ProjectExtender
 {
@@ -172,7 +171,6 @@ namespace FSharp.ProjectExtender
             foreach (var item in fixup_list)
             {
                 for (int i = 1; i <= item.MoveBy; i++)
-                    //item.Element.SwapWith(itemList[item.Index - i]);
                     item.Element.Move(ItemNode.Direction.Down);
                 itemList.Remove(item.Element);
                 itemList.Insert(item.Index - item.MoveBy, item.Element);

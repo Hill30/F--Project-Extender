@@ -9,7 +9,6 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using System.ComponentModel.Design;
-using Microsoft.Build.BuildEngine;
 using System.IO;
 using FSharp.ProjectExtender.Project;
 using IOLEServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
