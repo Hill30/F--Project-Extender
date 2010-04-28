@@ -36,7 +36,7 @@ namespace FSharp.ProjectExtender
                 project.BuildManager.GetElements(item => item.Name == "Compile"))
             {
                 TreeNode compileItem = new TreeNode(element.BuildItem.Include);
-                compileItem.Tag = project.Items.itemKeyMap[project.ProjectDir + "\\" + element.BuildItem.Include];
+                compileItem.Tag = project.Items[project.ProjectDir + "\\" + element.BuildItem.Include];
                 //compileItem.ContextMenuStrip = compileItemMenu;
                 BuildDependencies(compileItem);
                 CompileItems.Nodes.Add(compileItem);

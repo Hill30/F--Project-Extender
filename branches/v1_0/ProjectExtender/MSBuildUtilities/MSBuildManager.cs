@@ -50,64 +50,36 @@ namespace FSharp.ProjectExtender
 
             var item_list = new List<ItemNode>();
             var fixup_list = new List<Tuple<ItemNode, int, int>>();
-            SetBuildItems(n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None");
-            /*foreach (var item in GetElements(
-                    n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None"
-                    ))*/
-            foreach (var item in project.Items.itemMap.Values)
+
+            foreach (var item in project.Items)
             {
                 item_list.Add(item);
-                int offset;
-                if (item.BuildItem != null)
-                    if (int.TryParse(item.BuildItem.GetMetadata(moveByTag), out offset))
-                        fixup_list.Insert(0, new Tuple<ItemNode,int,int>(item, offset, item_list.Count - 1));
+                if (item.Type != Constants.ItemNodeType.PhysicalFile)
+                    continue;
+                switch (item.BuildItem.Name)
+                {
+                    case "Compile":
+                    case "Content":
+                    case "None":
+                        int offset;
+                        if (item.BuildItem != null)
+                            if (int.TryParse(item.BuildItem.GetMetadata(moveByTag), out offset))
+                                fixup_list.Insert(0, new Tuple<ItemNode, int, int>(item, offset, item_list.Count - 1));
+                        break;
+                    default:
+                        break;
+                }
             }
 
             foreach (var item in fixup_list)
             {
                 for (int i = 1; i <= item.MoveBy; i++)
-                    //item.Element.SwapWith(item_list[item.Index + i]);
                     item.Element.Move(ItemNode.Direction.Down);
                 item_list.Remove(item.Element);
                 item_list.Insert(item.Index + item.MoveBy, item.Element);
             }
         }
 
-        public void SetBuildItems(Predicate<BuildItem> condition)
-        {
-            foreach (BuildItemGroup group in project.ProjectProxy.BuildProject.ItemGroups)
-            {
-                foreach (BuildItem item in group)
-                {
-                    if (condition(item))
-                        project.Items.itemKeyMap[project.ProjectDir + "\\" + item.Include].BuildItem = item;
-                }
-            }
-
-        }
-        public int OnItemAdded(ref ItemNode node)
-        {
-            //item.Path = ProjectDir\\<FileName>
-            string fileName = node.Path.Substring(project.ProjectDir.Length + 1 );
-            string folder = Path.GetDirectoryName(fileName);
-            int cnt = 0;
-            foreach (BuildItemGroup group in project.ProjectProxy.BuildProject.ItemGroups)
-            {
-                foreach (BuildItem item in group)
-                {
-                    if (item.Include == fileName)
-                    {
-                        node.BuildItem = item;
-                        break;
-
-                    }
-                    if (item.Include.Contains(folder))
-                        cnt++;
-                }
-            }
-            if (node.BuildItem.Name == "Compile") cnt = 0;
-            return cnt;
-        }
         /// <summary>
         /// Gets an enumarator for all build elements satisfying provided condition
         /// </summary>
@@ -115,21 +87,16 @@ namespace FSharp.ProjectExtender
         /// <returns></returns>
         public IEnumerable<ItemNode> GetElements(Predicate<BuildItem> condition)
         {
-            foreach (BuildItemGroup group in project.ProjectProxy.BuildProject.ItemGroups)
-            {
-                int i = -1;
-                foreach (BuildItem item in group)
+            foreach (var node in project.Items)
+                switch (node.Type)
                 {
-                    i++;
-                    if (condition(item))
-                        yield return project.Items.itemKeyMap[project.ProjectDir + "\\" + item.Include] ;
+                    case Constants.ItemNodeType.PhysicalFile:
+                        if (condition(node.BuildItem))
+                            yield return node;
+                        break;
+                    default:
+                        break;
                 }
-            }
-            /*foreach (ItemNode item in project.Items.itemKeyMap.Values)
-            {
-                if (item.BuildItem != null && condition(item.BuildItem))
-                    yield return item;
-            }*/
         }
 
         /// <summary>

@@ -7,12 +7,13 @@ using Microsoft.VisualStudio.FSharp.ProjectSystem;
 using Microsoft.VisualStudio;
 using BuildProject = Microsoft.Build.BuildEngine.Project;
 using System.Reflection;
+using Microsoft.Build.BuildEngine;
 
 namespace FSharp.ProjectExtender.Project
 {
     class ProjectNodeProxy
     {
-        internal ProjectNode projectNode;
+        ProjectNode projectNode;
         public ProjectNodeProxy(IVsProject innerProject)
         {
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);
@@ -119,6 +120,15 @@ namespace FSharp.ProjectExtender.Project
                 (direction == ItemNode.Direction.Down) ? "MoveDown" : "MoveUp",
                 BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod,
                 null, null, new object[] {node, projectNode});
+        }
+
+        internal BuildItem GetBuildItem(ShadowFileNode shadowFileNode)
+        {
+            var node = projectNode.NodeFromItemId(shadowFileNode.ItemId);
+            var node_property = node.GetType().GetProperty("ItemNode", BindingFlags.Instance | BindingFlags.NonPublic);
+            var itemNode = node_property.GetValue(node, new object[] { });
+            var build_item_property = itemNode.GetType().GetProperty("Item", BindingFlags.Instance | BindingFlags.Public);
+            return (BuildItem)build_item_property.GetValue(itemNode, new object[] { });
         }
     }
 }

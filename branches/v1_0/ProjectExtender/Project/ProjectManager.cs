@@ -360,8 +360,6 @@ namespace FSharp.ProjectExtender
 
         public int OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
-            ItemNode newlyAdded = Items.itemKeyMap[rgpszMkDocuments[0]];
-            int n = BuildManager.OnItemAdded(ref newlyAdded );
             return VSConstants.S_OK;
         }
 

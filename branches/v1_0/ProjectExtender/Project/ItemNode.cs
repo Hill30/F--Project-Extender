@@ -22,7 +22,7 @@ namespace FSharp.ProjectExtender.Project
             items.Register(this);
         }
 
-        public BuildItem BuildItem { get; set; }
+        public virtual BuildItem BuildItem { get { throw new Exception("Build Item - not implemented"); } }
         public ItemNode Parent { get; private set; }
         public uint ItemId { get; private set; }
 
