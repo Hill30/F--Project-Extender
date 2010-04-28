@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.VisualStudio;
 using System.IO;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.Build.BuildEngine;
 
 namespace FSharp.ProjectExtender.Project
 {
@@ -21,6 +22,7 @@ namespace FSharp.ProjectExtender.Project
             items.Register(this);
         }
 
+        public BuildItem BuildItem { get; set; }
         public ItemNode Parent { get; private set; }
         public uint ItemId { get; private set; }
 
@@ -109,19 +111,24 @@ namespace FSharp.ProjectExtender.Project
         internal virtual void SetShowAll(bool show_all)
         {
         }
-        /// <summary>
-        ///internal static void MoveFileAbove(string relativeFileName, HierarchyNode nodeToMoveAbove, ProjectNode projectNode);
-        ///internal static void MoveFileBelow(string relativeFileName, HierarchyNode nodeToMoveBelow, ProjectNode projectNode);
-        ///internal static void MoveFileDown(HierarchyNode toMove, HierarchyNode toMoveAfter, ProjectNode projectNode);
-        ///internal static void MoveFileToBottom(string relativeFileName, ProjectNode projectNode);
-        ///internal static void MoveFileUp(HierarchyNode toMove, HierarchyNode toMoveBefore, ProjectNode projectNode);
-        /// </summary>
         /// <param name="dir"></param>
         internal void Move(Direction direction)
         {
             Items.Project.ProjectProxy.Move(this, direction);
         }
+        
+        internal string GetDependencies()
+        {
+            return BuildItem.GetMetadata(Constants.DependsOn);
+        }
 
+        internal void UpdateDependencies(List<ItemNode> dependencies)
+        {
+            if (dependencies.Count == 0)
+                BuildItem.RemoveMetadata(Constants.DependsOn);
+            else
+                BuildItem.SetMetadata(Constants.DependsOn, dependencies.ConvertAll(elem => elem.BuildItem.ToString()).Aggregate("", (a, item) => a + ',' + item).Substring(1));
+        }
         public enum Direction { Up, Down }
 
 

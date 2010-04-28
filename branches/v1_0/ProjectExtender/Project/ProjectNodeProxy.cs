@@ -12,7 +12,7 @@ namespace FSharp.ProjectExtender.Project
 {
     class ProjectNodeProxy
     {
-        ProjectNode projectNode;
+        internal ProjectNode projectNode;
         public ProjectNodeProxy(IVsProject innerProject)
         {
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);

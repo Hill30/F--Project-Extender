@@ -121,7 +121,6 @@
     <Compile Include="Project\IProjectManager.cs" />
     <Compile Include="Project\ItemList.cs" />
     <Compile Include="Project\ItemNode.cs" />
-    <Compile Include="MSBuildUtilities\BuildElement.cs" />
     <Compile Include="MSBuildUtilities\MSBuildManager.cs" />
     <Compile Include="Project\ProjectManager.cs" />
     <Compile Include="CompileOrderDialog\Page.cs" />

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
 using FSharp.ProjectExtender.Project;
+using Microsoft.Build.BuildEngine;
 
 namespace FSharp.ProjectExtender
 {
@@ -31,36 +32,25 @@ namespace FSharp.ProjectExtender
         public void refresh_file_list()
         {
             CompileItems.Nodes.Clear();
-            foreach (BuildElement element in 
+            foreach (ItemNode element in 
                 project.BuildManager.GetElements(item => item.Name == "Compile"))
             {
-                        TreeNode compileItem = new TreeNode(element.Path);
-                        compileItem.Tag = ((IProjectManager)project).Items.itemKeyMap[((IProjectManager)project).ProjectDir + "\\" + element.Path];
-                        //compileItem.ContextMenuStrip = compileItemMenu;
-                        BuildDependencies(compileItem);
-                        CompileItems.Nodes.Add(compileItem);
-            }
-            /*foreach (Project.ItemNode element in ((IProjectManager)project).Items.root.)
-            {
-                Constants.ItemNodeType nodetype = get_node_type(element.ItemId);
-                if ( nodetype == Constants.ItemNodeType.PhysicalFile)
-                {
-                TreeNode compileItem = new TreeNode(element.Path);
-                compileItem.Tag = element;
+                TreeNode compileItem = new TreeNode(element.BuildItem.Include);
+                compileItem.Tag = project.Items.itemKeyMap[project.ProjectDir + "\\" + element.BuildItem.Include];
+                //compileItem.ContextMenuStrip = compileItemMenu;
                 BuildDependencies(compileItem);
                 CompileItems.Nodes.Add(compileItem);
-                }
-            }*/
+            }
         }
 
         private void BuildDependencies(TreeNode node)
         {
             node.Nodes.Clear();
-            string dependencies ;//= ((BuildElement)node.Tag).GetDependencies(); 
-            /*if (dependencies != null)
+            string dependencies = ((ItemNode)node.Tag).GetDependencies(); 
+            if (dependencies != null)
                 foreach (var d in dependencies.Split(','))
                     if (d != "")
-                        node.Nodes.Add(d);*/
+                        node.Nodes.Add(d);
         }
 
         private void CompileItems_AfterSelect(object sender, TreeViewEventArgs e)
@@ -84,16 +74,16 @@ namespace FSharp.ProjectExtender
             {
                 if (origin.Node != n)
                     addForm.Dependencies.Items.Add(n.Tag);
-                if (((BuildElement)origin.Node.Tag).GetDependencies().IndexOf(n.Tag.ToString()) >= 0)
+                if (((ItemNode)origin.Node.Tag).GetDependencies().IndexOf(n.Tag.ToString()) >= 0)
                     addForm.Dependencies.SetItemChecked(addForm.Dependencies.Items.Count - 1, true);
             }
             if (addForm.ShowDialog() == DialogResult.OK)
             {
-                List<BuildElement> dependencies = new List<BuildElement>();
-                foreach (BuildElement item in addForm.Dependencies.CheckedItems)
+                List<ItemNode> dependencies = new List<ItemNode>();
+                foreach (ItemNode item in addForm.Dependencies.CheckedItems)
                     dependencies.Add(item);
 
-                ((BuildElement)origin.Node.Tag).UpdateDependencies(dependencies);
+                ((ItemNode)origin.Node.Tag).UpdateDependencies(dependencies);
                 BuildDependencies(origin.Node);
             }
             addForm.Dispose();

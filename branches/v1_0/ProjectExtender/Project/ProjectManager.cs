@@ -67,9 +67,8 @@ namespace FSharp.ProjectExtender
             innerProject.GetMkDocument(VSConstants.VSITEMID_ROOT,out name);
             ProjectDir = name.Substring(0,name.LastIndexOf('\\'));
             projectProxy = new ProjectNodeProxy(innerProject);
-            BuildManager = new MSBuildManager(projectProxy.BuildProject);
             itemList = new ItemList(this);
-
+            BuildManager = new MSBuildManager(this);
             hierarchy_event_cookie = AdviseHierarchyEvents(itemList);
             ErrorHandler.ThrowOnFailure(GlobalServices.documentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));
         }
@@ -361,6 +360,8 @@ namespace FSharp.ProjectExtender
 
         public int OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
+            ItemNode newlyAdded = Items.itemKeyMap[rgpszMkDocuments[0]];
+            int n = BuildManager.OnItemAdded(ref newlyAdded );
             return VSConstants.S_OK;
         }
 

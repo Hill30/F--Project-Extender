@@ -29,7 +29,7 @@ namespace FSharp.ProjectExtender.Project
     public class ItemList : IVsHierarchyEvents
     {
         IVsHierarchy root_hierarchy;
-        Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
+        internal Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
         internal Dictionary<string, ItemNode> itemKeyMap = new Dictionary<string, ItemNode>();
         internal ItemNode root;
         public const int ExcludedNodeStart = 0x0100000;

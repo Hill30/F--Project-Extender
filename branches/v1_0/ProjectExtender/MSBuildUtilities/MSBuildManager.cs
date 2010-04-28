@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Build.BuildEngine;
-using System.IO;
+using FSharp.ProjectExtender.Project;
 using BuildProject = Microsoft.Build.BuildEngine.Project;
 
 namespace FSharp.ProjectExtender
@@ -28,7 +29,7 @@ namespace FSharp.ProjectExtender
 
 
         private const string moveByTag = "move-by";
-        private BuildProject project;
+        private ProjectManager project;
 
         /// <summary>
         /// Creates an instance of the MSBuildManager. As a part of instance creation moves back project items  
@@ -43,49 +44,92 @@ namespace FSharp.ProjectExtender
         /// <see cref="M:FixupProject"/> method. After the FSharp base project system is done loading the project these 
         /// elements are moevd back to their original positions
         /// </remarks>
-        public MSBuildManager(BuildProject project)
+        public MSBuildManager(IProjectManager project)
         {
-            this.project = project;
+            this.project = (ProjectManager)project;
 
-            var item_list = new List<BuildElement>();
-            var fixup_list = new List<Tuple<BuildElement, int, int>>();
-
-            foreach (var item in GetElements(
+            var item_list = new List<ItemNode>();
+            var fixup_list = new List<Tuple<ItemNode, int, int>>();
+            SetBuildItems(n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None");
+            /*foreach (var item in GetElements(
                     n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None"
-                    ))
+                    ))*/
+            foreach (var item in project.Items.itemMap.Values)
             {
                 item_list.Add(item);
                 int offset;
-                if (int.TryParse(item.BuildItem.GetMetadata(moveByTag), out offset))
-                    fixup_list.Insert(0, new Tuple<BuildElement,int,int>(item, offset, item_list.Count - 1));
+                if (item.BuildItem != null)
+                    if (int.TryParse(item.BuildItem.GetMetadata(moveByTag), out offset))
+                        fixup_list.Insert(0, new Tuple<ItemNode,int,int>(item, offset, item_list.Count - 1));
             }
 
             foreach (var item in fixup_list)
             {
                 for (int i = 1; i <= item.MoveBy; i++)
-                    item.Element.SwapWith(item_list[item.Index + i]);
+                    //item.Element.SwapWith(item_list[item.Index + i]);
+                    item.Element.Move(ItemNode.Direction.Down);
                 item_list.Remove(item.Element);
                 item_list.Insert(item.Index + item.MoveBy, item.Element);
             }
         }
 
+        public void SetBuildItems(Predicate<BuildItem> condition)
+        {
+            foreach (BuildItemGroup group in project.ProjectProxy.BuildProject.ItemGroups)
+            {
+                foreach (BuildItem item in group)
+                {
+                    if (condition(item))
+                        project.Items.itemKeyMap[project.ProjectDir + "\\" + item.Include].BuildItem = item;
+                }
+            }
+
+        }
+        public int OnItemAdded(ref ItemNode node)
+        {
+            //item.Path = ProjectDir\\<FileName>
+            string fileName = node.Path.Substring(project.ProjectDir.Length + 1 );
+            string folder = Path.GetDirectoryName(fileName);
+            int cnt = 0;
+            foreach (BuildItemGroup group in project.ProjectProxy.BuildProject.ItemGroups)
+            {
+                foreach (BuildItem item in group)
+                {
+                    if (item.Include == fileName)
+                    {
+                        node.BuildItem = item;
+                        break;
+
+                    }
+                    if (item.Include.Contains(folder))
+                        cnt++;
+                }
+            }
+            if (node.BuildItem.Name == "Compile") cnt = 0;
+            return cnt;
+        }
         /// <summary>
         /// Gets an enumarator for all build elements satisfying provided condition
         /// </summary>
         /// <param name="condition"></param>
         /// <returns></returns>
-        public IEnumerable<BuildElement> GetElements(Predicate<BuildItem> condition)
+        public IEnumerable<ItemNode> GetElements(Predicate<BuildItem> condition)
         {
-            foreach (BuildItemGroup group in project.ItemGroups)
+            foreach (BuildItemGroup group in project.ProjectProxy.BuildProject.ItemGroups)
             {
                 int i = -1;
                 foreach (BuildItem item in group)
                 {
                     i++;
                     if (condition(item))
-                        yield return new BuildElement(group, i, item);
+                        yield return project.Items.itemKeyMap[project.ProjectDir + "\\" + item.Include] ;
                 }
             }
+            /*foreach (ItemNode item in project.Items.itemKeyMap.Values)
+            {
+                if (item.BuildItem != null && condition(item.BuildItem))
+                    yield return item;
+            }*/
         }
 
         /// <summary>
@@ -95,20 +139,21 @@ namespace FSharp.ProjectExtender
         {
 
             var fixup_dictionary = new Dictionary<string, int>();
-            var fixup_list = new List<Tuple<BuildElement, int, int>>();
-            var itemList = new List<BuildElement>();
+            var fixup_list = new List<Tuple<ItemNode, int, int>>();
+            var itemList = new List<ItemNode>();
             int count = 0;
 
-            foreach (BuildElement item in GetElements(
+            foreach (ItemNode item in GetElements(
                     n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None"
                     ))
             {
                 item.BuildItem.RemoveMetadata(moveByTag);
                 itemList.Add(item);
                 count++;
-                string path = Path.GetDirectoryName(item.Path);
+                string path = Path.GetDirectoryName(item.BuildItem.Include);
+                //if the item is root level item - think as if it is a folder
                 if (String.Compare(path, "") == 0) 
-                    path  = item.Path; 
+                    path  = item.BuildItem.Include; 
                 string partial_path = path;
                 int location;
                 while (true)
@@ -124,7 +169,7 @@ namespace FSharp.ProjectExtender
                             item.BuildItem.SetMetadata(moveByTag, offset.ToString());
 
                             // add the item to the fixup list
-                            fixup_list.Add(new Tuple<BuildElement, int, int>(item, offset, count - 1));
+                            fixup_list.Add(new Tuple<ItemNode, int, int>(item, offset, count - 1));
 
                             // increment item positions in the fixup dictionary to reflect 
                             // change in their position caused by an element inserted in front of them
@@ -160,11 +205,12 @@ namespace FSharp.ProjectExtender
             foreach (var item in fixup_list)
             {
                 for (int i = 1; i <= item.MoveBy; i++)
-                    item.Element.SwapWith(itemList[item.Index - i]);
+                    //item.Element.SwapWith(itemList[item.Index - i]);
+                    item.Element.Move(ItemNode.Direction.Down);
                 itemList.Remove(item.Element);
                 itemList.Insert(item.Index - item.MoveBy, item.Element);
             }
-            project.Save(project.FullFileName);
+            project.ProjectProxy.BuildProject.Save(project.ProjectProxy.BuildProject.FullFileName);
         }
     }
 }

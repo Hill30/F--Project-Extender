@@ -14,7 +14,6 @@ namespace FSharp.ProjectExtender
         Project.ItemList Items {get;}
         string ProjectDir { get; set; }
         void FlipShowAll();
-
         void Refresh();
     }
 }
