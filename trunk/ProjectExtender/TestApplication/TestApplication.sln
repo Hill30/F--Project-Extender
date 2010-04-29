@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestApplication", "TestApplication\TestApplication_test.fsproj", "{0ceb19de-483e-4c00-aee8-35e32fc3ce36}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CEB19DE-483E-4C00-AEE8-35E32FC3CE36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CEB19DE-483E-4C00-AEE8-35E32FC3CE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CEB19DE-483E-4C00-AEE8-35E32FC3CE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CEB19DE-483E-4C00-AEE8-35E32FC3CE36}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
