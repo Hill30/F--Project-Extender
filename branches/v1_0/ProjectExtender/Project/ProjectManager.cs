@@ -13,6 +13,7 @@ using System.IO;
 using FSharp.ProjectExtender.Project;
 using IOLEServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 using ShellConstants = Microsoft.VisualStudio.Shell.Interop.Constants;
+using System.Collections;
 
 namespace FSharp.ProjectExtender
 {
@@ -67,7 +68,6 @@ namespace FSharp.ProjectExtender
             ProjectDir = name.Substring(0,name.LastIndexOf('\\'));
             projectProxy = new ProjectNodeProxy(innerProject);
             itemList = new ItemList(this);
-            BuildManager = new MSBuildManager(this);
             hierarchy_event_cookie = AdviseHierarchyEvents(itemList);
             ErrorHandler.ThrowOnFailure(GlobalServices.documentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));
         }
@@ -257,8 +257,11 @@ namespace FSharp.ProjectExtender
         #region IProjectManager Members
         public Project.ItemList Items { get {return itemList; }}
 
-        public MSBuildManager BuildManager { get; private set; }
-        
+        public IEnumerable BuildItems
+        {
+            get { return projectProxy; }
+        }
+
         /// <summary>
         /// In response to click on the Show All Files button changes the state of the button
         /// </summary>
@@ -279,6 +282,11 @@ namespace FSharp.ProjectExtender
                 itemList.SetShowAll(show_all);
                 RefreshSolutionExplorer(itemList.GetSelectedNodes());
             }
+        }
+
+        public void FixupProject()
+        {
+            projectProxy.FixupProject();
         }
 
         #endregion

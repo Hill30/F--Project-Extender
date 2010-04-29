@@ -47,23 +47,20 @@ namespace FSharp.ProjectExtender
         {
             this.project = (ProjectManager)project;
 
-            var item_list = new List<ItemNode>();
-            var fixup_list = new List<Tuple<ItemNode, int, int>>();
+            var item_list = new List<BuildItemProxy>();
+            var fixup_list = new List<Tuple<BuildItemProxy, int, int>>();
 
-            foreach (var item in project.Items)
+            foreach (var item in project.BuildItems)
             {
                 item_list.Add(item);
-                if (item.Type != Constants.ItemNodeType.PhysicalFile)
-                    continue;
-                switch (item.BuildItem.Name)
+                switch (item.Name)
                 {
                     case "Compile":
                     case "Content":
                     case "None":
                         int offset;
-                        if (item.BuildItem != null)
-                            if (int.TryParse(item.BuildItem.GetMetadata(moveByTag), out offset))
-                                fixup_list.Insert(0, new Tuple<ItemNode, int, int>(item, offset, item_list.Count - 1));
+                        if (int.TryParse(item.GetMetadata(moveByTag), out offset))
+                            fixup_list.Insert(0, new Tuple<BuildItemProxy, int, int>(item, offset, item_list.Count - 1));
                         break;
                     default:
                         break;
@@ -80,46 +77,27 @@ namespace FSharp.ProjectExtender
         }
 
         /// <summary>
-        /// Gets an enumarator for all build elements satisfying provided condition
-        /// </summary>
-        /// <param name="condition"></param>
-        /// <returns></returns>
-        public IEnumerable<ItemNode> GetElements(Predicate<BuildItemProxy> condition)
-        {
-            foreach (var node in project.Items)
-                switch (node.Type)
-                {
-                    case Constants.ItemNodeType.PhysicalFile:
-                        if (condition(node.BuildItem))
-                            yield return node;
-                        break;
-                    default:
-                        break;
-                }
-        }
-
-        /// <summary>
         /// Adjusts the positions of build elements to ensure the project can be loaded by the FSharp project system
         /// </summary>
         internal void FixupProject()
         {
 
             var fixup_dictionary = new Dictionary<string, int>();
-            var fixup_list = new List<Tuple<ItemNode, int, int>>();
-            var itemList = new List<ItemNode>();
+            var fixup_list = new List<Tuple<BuildItemProxy, int, int>>();
+            var itemList = new List<BuildItemProxy>();
             int count = 0;
 
-            foreach (ItemNode item in GetElements(
+            foreach (var item in project.BuildItems.Where(
                     n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None"
                     ))
             {
-                item.BuildItem.RemoveMetadata(moveByTag);
+                item.RemoveMetadata(moveByTag);
                 itemList.Add(item);
                 count++;
-                string path = Path.GetDirectoryName(item.BuildItem.Include);
+                string path = Path.GetDirectoryName(item.Include);
                 //if the item is root level item - think as if it is a folder
                 if (String.Compare(path, "") == 0) 
-                    path  = item.BuildItem.Include; 
+                    path  = item.Include; 
                 string partial_path = path;
                 int location;
                 while (true)
@@ -132,10 +110,10 @@ namespace FSharp.ProjectExtender
                         // if offset = 0 this item does not have to be moved
                         if (offset > 0)
                         {
-                            item.BuildItem.SetMetadata(moveByTag, offset.ToString());
+                            item.SetMetadata(moveByTag, offset.ToString());
 
                             // add the item to the fixup list
-                            fixup_list.Add(new Tuple<ItemNode, int, int>(item, offset, count - 1));
+                            fixup_list.Add(new Tuple<BuildItemProxy, int, int>(item, offset, count - 1));
 
                             // increment item positions in the fixup dictionary to reflect 
                             // change in their position caused by an element inserted in front of them

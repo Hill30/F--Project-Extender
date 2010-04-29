@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -32,11 +33,12 @@ namespace FSharp.ProjectExtender
         public void refresh_file_list()
         {
             CompileItems.Nodes.Clear();
-            foreach (ItemNode element in 
-                project.BuildManager.GetElements(item => item.Name == "Compile"))
+            foreach (BuildItemProxy element in project.BuildItems)
             {
-                TreeNode compileItem = new TreeNode(element.BuildItem.Include);
-                compileItem.Tag = project.Items[project.ProjectDir + "\\" + element.BuildItem.Include];
+                if (element.Name != "Compile")
+                    continue;
+                TreeNode compileItem = new TreeNode(element.Include);
+                compileItem.Tag = project.Items[project.ProjectDir + "\\" + element.Include];
                 //compileItem.ContextMenuStrip = compileItemMenu;
                 BuildDependencies(compileItem);
                 CompileItems.Nodes.Add(compileItem);

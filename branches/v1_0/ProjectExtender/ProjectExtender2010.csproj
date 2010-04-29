@@ -153,7 +153,6 @@
     <Compile Include="Project\IProjectManager.cs" />
     <Compile Include="Project\ItemList.cs" />
     <Compile Include="Project\ItemNode.cs" />
-    <Compile Include="MSBuildUtilities\MSBuildManager.cs" />
     <Compile Include="Project\ProjectManager.cs" />
     <Compile Include="CompileOrderDialog\Page.cs" />
     <Compile Include="CompileOrderDialog\Viewer.cs">
@@ -196,6 +195,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Package.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MSBuildUtilities\" />
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>

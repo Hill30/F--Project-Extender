@@ -7,48 +7,69 @@ using Microsoft.VisualStudio.FSharp.ProjectSystem;
 using Microsoft.VisualStudio;
 using BuildProject = Microsoft.Build.BuildEngine.Project;
 using System.Reflection;
+using System.IO;
 
 namespace FSharp.ProjectExtender.Project
 {
-    class ProjectNodeProxy
+    class ProjectNodeProxy : IEnumerable<BuildItemProxy>
     {
+        
+        struct Tuple<T1, T2, T3>
+        {
+            public Tuple(T1 element, T2 moveBy, T3 index)
+            {
+                this.element = element;
+                this.moveBy = moveBy;
+                this.index = index;
+            }
+            T1 element;
+            T2 moveBy;
+            T3 index;
+            public T1 Element { get { return element; } }
+            public T2 MoveBy { get { return moveBy; } }
+            public T3 Index { get { return index; } }
+        }
+        
         ProjectNode projectNode;
         public ProjectNodeProxy(IVsProject innerProject)
         {
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);
             BuildProject = projectNode.BuildProject;
+
+            var item_list = new List<BuildItemProxy>();
+            var fixup_list = new List<Tuple<BuildItemProxy, int, int>>();
+
+            foreach (var item in this)
+            {
+                item_list.Add(item);
+                switch (item.Name)
+                {
+                    case "Compile":
+                    case "Content":
+                    case "None":
+                        int offset;
+                        if (int.TryParse(item.GetMetadata(Constants.moveByTag), out offset))
+                            fixup_list.Insert(0, new Tuple<BuildItemProxy, int, int>(item, offset, item_list.Count - 1));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            foreach (var item in fixup_list)
+            {
+                for (int i = 1; i <= item.MoveBy; i++)
+                    item.Element.Move(ItemNode.Direction.Down);
+                item_list.Remove(item.Element);
+                item_list.Insert(item.Index + item.MoveBy, item.Element);
+            }
         }
+
 #if VS2008
         public Microsoft.Build.BuildEngine.Project BuildProject { get; private set; }
 #elif VS2010
         public Microsoft.Build.Evaluation.Project BuildProject { get; private set; }
 #endif
-
-        ///// <summary>
-        ///// Gets the specified metadata element for a given build item
-        ///// </summary>
-        ///// <param name="itemId">ID for the item</param>
-        ///// <param name="property">metadata element name</param>
-        ///// <returns>metadata element value</returns>
-        //internal string GetMetadata(uint itemId, string property)
-        //{
-        //    object browseObject;
-        //    ErrorHandler.ThrowOnFailure(base.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_BrowseObject, out browseObject));
-        //    return (string)browseObject.GetType().GetMethod("GetMetadata").Invoke(browseObject, new object[] { property });
-        //}
-
-        ///// <summary>
-        ///// Sets the specified metadata element for a given build item
-        ///// </summary>
-        ///// <param name="itemId">ID for the item</param>
-        ///// <param name="property">metadata element name</param>
-        ///// <param name="value">new element value</param>
-        //internal void SetMetadata(uint itemId, string property, string value)
-        //{
-        //    object browseObject;
-        //    ErrorHandler.ThrowOnFailure(base.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_BrowseObject, out browseObject));
-        //    browseObject.GetType().GetMethod("SetMetadata").Invoke(browseObject, new object[] { property, value });
-        //}
 
         /// <summary>
         /// Invalidates the solution explorer by calling OnInvalidateItems 
@@ -131,6 +152,106 @@ namespace FSharp.ProjectExtender.Project
             var itemNode = node_property.GetValue(node, new object[] { });
             var build_item_property = itemNode.GetType().GetProperty("Item", BindingFlags.Instance | BindingFlags.Public);
             return new BuildItemProxy(build_item_property.GetValue(itemNode, new object[] { }));
+        }
+
+
+        /// <summary>
+        /// Adjusts the positions of build elements to ensure the project can be loaded by the FSharp project system
+        /// </summary>
+        internal void FixupProject()
+        {
+
+            var fixup_dictionary = new Dictionary<string, int>();
+            var fixup_list = new List<Tuple<BuildItemProxy, int, int>>();
+            var itemList = new List<BuildItemProxy>();
+            int count = 0;
+
+            foreach (var item in this.Where(
+                    n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None"
+                    ))
+            {
+                item.RemoveMetadata(Constants.moveByTag);
+                itemList.Add(item);
+                count++;
+                string path = Path.GetDirectoryName(item.Include);
+                //if the item is root level item - think as if it is a folder
+                if (String.Compare(path, "") == 0)
+                    path = item.Include;
+                string partial_path = path;
+                int location;
+                while (true)
+                {
+                    // The partial path was already encountered in the project file
+                    if (fixup_dictionary.TryGetValue(partial_path, out location))
+                    {
+                        int offset = count - 1 - location; // we need to move it up in the build file by this many slots
+
+                        // if offset = 0 this item does not have to be moved
+                        if (offset > 0)
+                        {
+                            item.SetMetadata(Constants.moveByTag, offset.ToString());
+
+                            // add the item to the fixup list
+                            fixup_list.Add(new Tuple<BuildItemProxy, int, int>(item, offset, count - 1));
+
+                            // increment item positions in the fixup dictionary to reflect 
+                            // change in their position caused by an element inserted in front of them
+                            foreach (var d_item in fixup_dictionary.ToList())
+                            {
+                                if (d_item.Value > location)
+                                    fixup_dictionary[d_item.Key] += 1;
+                            }
+                        }
+                        break;
+                    }
+                    var ndx = partial_path.LastIndexOf('\\');
+                    if (ndx < 0)
+                    {
+                        location = count - 1;  // this is a brand new path - let us put it in the bottom
+                        break;
+                    }
+                    // Move one step up in the item directory path
+                    partial_path = partial_path.Substring(0, ndx);
+                }
+                partial_path = path;
+
+                // update the fixup dictionary to reflect the positions of the paths we encountered so far
+                while (true)
+                {
+                    fixup_dictionary[partial_path] = location + 1; // the index for the slot to put the next item in
+                    var ndx = partial_path.LastIndexOf('\\');
+                    if (ndx < 0)
+                        break;
+                    partial_path = partial_path.Substring(0, ndx);
+                }
+            }
+            foreach (var item in fixup_list)
+            {
+                for (int i = 1; i <= item.MoveBy; i++)
+                    item.Element.Move(ItemNode.Direction.Down);
+                itemList.Remove(item.Element);
+                itemList.Insert(item.Index - item.MoveBy, item.Element);
+            }
+#if VS2008
+            BuildProject.Save(project.ProjectProxy.BuildProject.FullFileName);
+#elif VS2010
+            BuildProject.Save();
+#endif
+        }
+
+        public IEnumerator<BuildItemProxy> GetEnumerator()
+        {
+#if VS2008
+            throw new NotImplementedException();
+#elif VS2010
+            foreach (var item in BuildProject.Items)
+                yield return new BuildItemProxy(item);
+#endif
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

@@ -31,6 +31,8 @@ namespace FSharp.ProjectExtender
 
         public const uint cmdidExploreFolderInWindows = 0x663;
         public const uint cmdidNewFolder = 0xf5;
+        
+        public const string moveByTag = "move-by";
 
         public enum ImageName
         {

@@ -26,7 +26,7 @@ namespace FSharp.ProjectExtender.Project
     /// the IVsHierarchy.GetProperty method. The ProjectExtender redirects the GetProperty method calls to 
     /// provide them in the order defined by ItemList rather than the order of F# Project Manager
     /// </remarks>
-    public class ItemList : IVsHierarchyEvents, IEnumerable<ItemNode>
+    public class ItemList : IVsHierarchyEvents//, IEnumerable<ItemNode>
     {
         IVsHierarchy root_hierarchy;
         private Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
@@ -447,23 +447,23 @@ namespace FSharp.ProjectExtender.Project
             return result;
         }
 
-        #region IEnumerable<ItemNode> Members
+        //#region IEnumerable<ItemNode> Members
 
-        public IEnumerator<ItemNode> GetEnumerator()
-        {
-            return itemMap.Values.GetEnumerator();
-        }
+        //public IEnumerator<ItemNode> GetEnumerator()
+        //{
+        //    return itemMap.Values.GetEnumerator();
+        //}
 
-        #endregion
+        //#endregion
 
-        #region IEnumerable Members
+        //#region IEnumerable Members
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        //System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        //{
+        //    return GetEnumerator();
+        //}
 
-        #endregion
+        //#endregion
 
         public ItemNode this[string path] { get { return itemKeyMap[path]; } }
     }

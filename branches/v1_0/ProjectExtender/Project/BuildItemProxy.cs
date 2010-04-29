@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Build.Construction;
 
 namespace FSharp.ProjectExtender.Project
 {
@@ -64,5 +65,41 @@ namespace FSharp.ProjectExtender.Project
         {
             return Include;
         }
+
+#if VS2008
+        internal void Move(ItemNode.Direction direction)
+        {
+            throw new NotImplementedException();
+        }
+#elif VS2010
+        internal void Move(ItemNode.Direction direction)
+        {
+            var element = instance.Xml;
+            var parent = element.Parent;
+            ProjectElement reference;
+            switch (direction)
+            {
+                case ItemNode.Direction.Up:
+                    reference = element;
+                    do
+                        reference = reference.PreviousSibling;
+                    while (!(reference is ProjectItemElement) || ((ProjectItemElement)reference).ItemType != "Compile");
+
+                    parent.RemoveChild(element);
+                    parent.InsertBeforeChild(element, reference);
+                    break;
+                case ItemNode.Direction.Down:
+                    reference = element;
+                    do
+                        reference = reference.NextSibling;
+                    while (!(reference is ProjectItemElement) || ((ProjectItemElement)reference).ItemType != "Compile");
+
+                    parent.RemoveChild(element);
+                    parent.InsertAfterChild(element, reference);
+                    break;
+            }
+        }
+#endif
+
     }
 }

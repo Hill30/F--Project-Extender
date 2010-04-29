@@ -62,8 +62,9 @@ namespace FSharp.ProjectExtender
 
         public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
         {
-            if (pHierarchy is IProjectManager)
-                ((IProjectManager)pHierarchy).BuildManager.FixupProject();
+            var project = pHierarchy as IProjectManager;
+            if (project != null)
+                project.FixupProject();
             return VSConstants.S_OK;
         }
 

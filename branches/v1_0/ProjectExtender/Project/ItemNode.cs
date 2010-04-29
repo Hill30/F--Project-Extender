@@ -111,10 +111,12 @@ namespace FSharp.ProjectExtender.Project
         internal virtual void SetShowAll(bool show_all)
         {
         }
+
         /// <param name="dir"></param>
         internal void Move(Direction direction)
         {
-            Items.Project.ProjectProxy.Move(this, direction);
+            this.BuildItem.Move(direction);
+            //Items.Project.ProjectProxy.Move(this, direction);
         }
         
         internal string GetDependencies()
