@@ -19,7 +19,7 @@ namespace FSharp.ProjectExtender.Project
             BuildProject = projectNode.BuildProject;
         }
 #if VS2008
-        public Microsoft.Build.BuildEngine.BuildProject BuildProject { get; private set; }
+        public Microsoft.Build.BuildEngine.Project BuildProject { get; private set; }
 #elif VS2010
         public Microsoft.Build.Evaluation.Project BuildProject { get; private set; }
 #endif
