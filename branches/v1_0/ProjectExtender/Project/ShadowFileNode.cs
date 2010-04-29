@@ -13,14 +13,14 @@ namespace FSharp.ProjectExtender.Project
         {
             buildItem = Items.Project.ProjectProxy.GetBuildItem(this);
         }
-        BuildItem buildItem;
+        BuildItemProxy buildItem;
 
         protected override string SortOrder
         {
             get { return "e"; }
         }
 
-        public override Microsoft.Build.BuildEngine.BuildItem BuildItem
+        public override BuildItemProxy BuildItem
         {
             get
             {

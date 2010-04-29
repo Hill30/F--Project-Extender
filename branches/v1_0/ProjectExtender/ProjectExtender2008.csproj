@@ -101,6 +101,7 @@
     <Compile Include="Commands\ShowAll.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="Project\BuildItemProxy.cs" />
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />
     <Compile Include="Project\Excluded\ExcludedNode.cs" />

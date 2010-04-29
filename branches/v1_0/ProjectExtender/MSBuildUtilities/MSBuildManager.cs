@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define VS2010
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,7 +85,7 @@ namespace FSharp.ProjectExtender
         /// </summary>
         /// <param name="condition"></param>
         /// <returns></returns>
-        public IEnumerable<ItemNode> GetElements(Predicate<BuildItem> condition)
+        public IEnumerable<ItemNode> GetElements(Predicate<BuildItemProxy> condition)
         {
             foreach (var node in project.Items)
                 switch (node.Type)
@@ -175,7 +176,11 @@ namespace FSharp.ProjectExtender
                 itemList.Remove(item.Element);
                 itemList.Insert(item.Index - item.MoveBy, item.Element);
             }
+#if VS2008
             project.ProjectProxy.BuildProject.Save(project.ProjectProxy.BuildProject.FullFileName);
+#elif VS2010
+            project.ProjectProxy.BuildProject.Save();
+#endif
         }
     }
 }

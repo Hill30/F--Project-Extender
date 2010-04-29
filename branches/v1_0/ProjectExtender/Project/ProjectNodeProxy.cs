@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define VS2010
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,11 @@ using Microsoft.VisualStudio.FSharp.ProjectSystem;
 using Microsoft.VisualStudio;
 using BuildProject = Microsoft.Build.BuildEngine.Project;
 using System.Reflection;
+#if VS2008
 using Microsoft.Build.BuildEngine;
+#elif VS2010
+using Microsoft.Build.Evaluation;
+#endif
 
 namespace FSharp.ProjectExtender.Project
 {
@@ -19,8 +24,11 @@ namespace FSharp.ProjectExtender.Project
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);
             BuildProject = projectNode.BuildProject;
         }
-
+#if VS2008
         public BuildProject BuildProject { get; private set; }
+#elif VS2010
+        public Microsoft.Build.Evaluation.Project BuildProject { get; private set; }
+#endif
 
         ///// <summary>
         ///// Gets the specified metadata element for a given build item
@@ -122,13 +130,13 @@ namespace FSharp.ProjectExtender.Project
                 null, null, new object[] {node, projectNode});
         }
 
-        internal BuildItem GetBuildItem(ShadowFileNode shadowFileNode)
+        internal BuildItemProxy GetBuildItem(ShadowFileNode shadowFileNode)
         {
             var node = projectNode.NodeFromItemId(shadowFileNode.ItemId);
             var node_property = node.GetType().GetProperty("ItemNode", BindingFlags.Instance | BindingFlags.NonPublic);
             var itemNode = node_property.GetValue(node, new object[] { });
             var build_item_property = itemNode.GetType().GetProperty("Item", BindingFlags.Instance | BindingFlags.Public);
-            return (BuildItem)build_item_property.GetValue(itemNode, new object[] { });
+            return new BuildItemProxy(build_item_property.GetValue(itemNode, new object[] { }));
         }
     }
 }
