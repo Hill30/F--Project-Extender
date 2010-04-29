@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectExtender2010", "ProjectExtender2010.csproj", "{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectExtender2010", "ProjectExtender2010.csproj", "{4C212D3D-B68F-4B2D-916B-E607B5AEA6A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
