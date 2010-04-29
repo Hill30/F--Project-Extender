@@ -1,5 +1,4 @@
-﻿#define VS2010
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +7,6 @@ using Microsoft.VisualStudio.FSharp.ProjectSystem;
 using Microsoft.VisualStudio;
 using BuildProject = Microsoft.Build.BuildEngine.Project;
 using System.Reflection;
-#if VS2008
-using Microsoft.Build.BuildEngine;
-#elif VS2010
-using Microsoft.Build.Evaluation;
-#endif
 
 namespace FSharp.ProjectExtender.Project
 {
@@ -25,7 +19,7 @@ namespace FSharp.ProjectExtender.Project
             BuildProject = projectNode.BuildProject;
         }
 #if VS2008
-        public BuildProject BuildProject { get; private set; }
+        public Microsoft.Build.BuildEngine.BuildProject BuildProject { get; private set; }
 #elif VS2010
         public Microsoft.Build.Evaluation.Project BuildProject { get; private set; }
 #endif
