@@ -11,95 +11,58 @@ namespace FSharp.ProjectExtender.Project
     /// This class is used to switch between BuildItem and ProjectItem types 
     /// depending on whether the package is build for VS2008 or VS2010
     /// </summary>
-    public class BuildItemProxy
+    public class BuildItemProxy : IBuildItem
     {
-#if VS2008
-        public Microsoft.Build.BuildEngine.BuildItem instance;
-#elif VS2010
-        public Microsoft.Build.Evaluation.ProjectItem instance;
-#endif
-        public string Include { get; private set; }
-        public string Name { get; private set; }
-        
-        internal BuildItemProxy(object bi )
-        {
-#if VS2008
-            instance = (Microsoft.Build.BuildEngine.BuildItem)bi;
-            Include = instance.Include;
-            Name = instance.Name;
-#elif VS2010
-            instance = (Microsoft.Build.Evaluation.ProjectItem)bi;
-            Include = instance.EvaluatedInclude;
-            Name = instance.ItemType;
-#endif
 
-        }
-        
+        public string Include { get { return instance.Include; } }
+
+        public string Name { get { return instance.ItemType; } }
+
         public string GetMetadata(string name)
         {
-#if VS2008
-            return instance.GetMetadata(name);
-#elif VS2010
-            var metadata = instance.GetMetadata(name);
+            var metadata = instance.Metadata.FirstOrDefault(item => item.Name == name);
             if (metadata == null)
                 return null;
-            return metadata.EvaluatedValue;
-#endif
+            return metadata.Value;
         }
 
         public void RemoveMetadata(string name)
         {
-            instance.RemoveMetadata(name);
+            var metadata = instance.Metadata.FirstOrDefault(item => item.Name == name);
+            if (metadata != null)
+                instance.RemoveChild(metadata);
         }
 
         public void SetMetadata(string name, string value)
         {
-#if VS2008
-            instance.SetMetadata(name,value);
-#elif VS2010
-            instance.SetMetadataValue(name, value);
-#endif
+            RemoveMetadata(name);
+            instance.AddMetadata(name, value);
         }
 
-        public override string ToString()
+        void IBuildItem.SwapWith(IBuildItem iTarget)
         {
-            return Include;
+            var anchor = instance.ContainingProject.CreateItemElement("Anchor", Guid.NewGuid().ToString());
+            instance.Parent.InsertAfterChild(anchor, instance);
+            instance.Parent.RemoveChild(instance);
+
+            var target = (BuildItemProxy)iTarget;
+            target.instance.Parent.InsertAfterChild(instance, target.instance);
+            target.instance.Parent.RemoveChild(target.instance);
+            anchor.Parent.InsertAfterChild(target.instance, anchor);
+            anchor.Parent.RemoveChild(anchor);
         }
 
-#if VS2008
-        internal void Move(ItemNode.Direction direction)
+        internal BuildItemProxy(ProjectItemElement instance)
         {
-            throw new NotImplementedException();
+            this.instance = instance;
         }
-#elif VS2010
-        internal void Move(ItemNode.Direction direction)
+
+        internal BuildItemProxy(object bi)
         {
-            var element = instance.Xml;
-            var parent = element.Parent;
-            ProjectElement reference;
-            switch (direction)
-            {
-                case ItemNode.Direction.Up:
-                    reference = element;
-                    do
-                        reference = reference.PreviousSibling;
-                    while (!(reference is ProjectItemElement) || ((ProjectItemElement)reference).ItemType != "Compile");
-
-                    parent.RemoveChild(element);
-                    parent.InsertBeforeChild(element, reference);
-                    break;
-                case ItemNode.Direction.Down:
-                    reference = element;
-                    do
-                        reference = reference.NextSibling;
-                    while (!(reference is ProjectItemElement) || ((ProjectItemElement)reference).ItemType != "Compile");
-
-                    parent.RemoveChild(element);
-                    parent.InsertAfterChild(element, reference);
-                    break;
-            }
+            instance = ((Microsoft.Build.Evaluation.ProjectItem)bi).Xml;
         }
-#endif
+
+        public ProjectItemElement instance;
 
     }
 }

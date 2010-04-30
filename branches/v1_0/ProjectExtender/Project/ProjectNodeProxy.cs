@@ -231,7 +231,7 @@ namespace FSharp.ProjectExtender.Project
                 foreach (var item in group.ToArray())
                     yield return new BuildItemProxy(item);
 #elif VS2010
-            foreach (var item in BuildProject.Items)
+            foreach (var item in BuildProject.Xml.Items)
                 yield return new BuildItemProxy(item);
 #endif
         }

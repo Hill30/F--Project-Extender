@@ -136,8 +136,9 @@
     <Compile Include="Commands\Refresh.cs" />
     <Compile Include="Commands\ShowAll.cs" />
     <Compile Include="GlobalServices.cs" />
+    <Compile Include="MSBuildUtilities\BuildItemProxy2010.cs" />
+    <Compile Include="MSBuildUtilities\IBuildItem.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="Project\BuildItemProxy.cs" />
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />
     <Compile Include="Project\Excluded\ExcludedNode.cs" />
@@ -196,9 +197,7 @@
   <ItemGroup>
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MSBuildUtilities\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
   </PropertyGroup>
