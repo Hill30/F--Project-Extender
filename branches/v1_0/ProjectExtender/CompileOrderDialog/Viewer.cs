@@ -33,7 +33,7 @@ namespace FSharp.ProjectExtender
         public void refresh_file_list()
         {
             CompileItems.Nodes.Clear();
-            foreach (BuildItemProxy element in project.BuildItems)
+            foreach (IBuildItem element in project.BuildItems)
             {
                 if (element.Name != "Compile")
                     continue;
@@ -48,7 +48,7 @@ namespace FSharp.ProjectExtender
         private void BuildDependencies(TreeNode node)
         {
             node.Nodes.Clear();
-            string dependencies = ((ItemNode)node.Tag).GetDependencies(); 
+            string dependencies = ((ShadowFileNode)node.Tag).GetDependencies(); 
             if (dependencies != null)
                 foreach (var d in dependencies.Split(','))
                     if (d != "")
@@ -76,16 +76,16 @@ namespace FSharp.ProjectExtender
             {
                 if (origin.Node != n)
                     addForm.Dependencies.Items.Add(n.Tag);
-                if (((ItemNode)origin.Node.Tag).GetDependencies().IndexOf(n.Tag.ToString()) >= 0)
+                if (((ShadowFileNode)origin.Node.Tag).GetDependencies().IndexOf(n.Tag.ToString()) >= 0)
                     addForm.Dependencies.SetItemChecked(addForm.Dependencies.Items.Count - 1, true);
             }
             if (addForm.ShowDialog() == DialogResult.OK)
             {
-                List<ItemNode> dependencies = new List<ItemNode>();
-                foreach (ItemNode item in addForm.Dependencies.CheckedItems)
+                var dependencies = new List<ShadowFileNode>();
+                foreach (ShadowFileNode item in addForm.Dependencies.CheckedItems)
                     dependencies.Add(item);
 
-                ((ItemNode)origin.Node.Tag).UpdateDependencies(dependencies);
+                ((ShadowFileNode)origin.Node.Tag).UpdateDependencies(dependencies);
                 BuildDependencies(origin.Node);
             }
             addForm.Dispose();
@@ -94,14 +94,14 @@ namespace FSharp.ProjectExtender
         private void MoveUp_Click(object sender, EventArgs e)
         {
             if (CompileItems.SelectedNode != null)
-                MoveElement(CompileItems.SelectedNode, ItemNode.Direction.Up);
+                MoveElement(CompileItems.SelectedNode, ShadowFileNode.Direction.Up);
         }
 
 
         private void MoveDown_Click(object sender, EventArgs e)
         {
             if (CompileItems.SelectedNode != null)
-                MoveElement(CompileItems.SelectedNode, ItemNode.Direction.Down);
+                MoveElement(CompileItems.SelectedNode, ShadowFileNode.Direction.Down);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace FSharp.ProjectExtender
         /// </summary>
         /// <param name="n">item to move</param>
         /// <param name="dir">direction</param>
-        private void MoveElement(TreeNode n, ItemNode.Direction dir)
+        private void MoveElement(TreeNode n, ShadowFileNode.Direction dir)
         {
             if (!CompileItems.Nodes.Contains(n))
                 return;
@@ -118,12 +118,12 @@ namespace FSharp.ProjectExtender
             int new_index = 0;
             switch (dir)
             {
-                case ItemNode.Direction.Up:
+                case ShadowFileNode.Direction.Up:
                     if (n.Index <= 0) // already at the top - nowehere to go up
                         return;
                     new_index = n.Index - 1;
                     break;
-                case ItemNode.Direction.Down:
+                case ShadowFileNode.Direction.Down:
                     if (n.Index >= CompileItems.Nodes.Count - 1) // already at the bottom - nowehere to go down
                         return;
                     new_index = n.Index + 1;
@@ -132,8 +132,7 @@ namespace FSharp.ProjectExtender
             if (OnPageUpdated != null)
                 OnPageUpdated(this, EventArgs.Empty);
 
-            //((BuildElement)n.Tag).SwapWith((BuildElement)CompileItems.Nodes[new_index].Tag);
-            ((Project.ItemNode)n.Tag).Move(dir);
+            ((Project.ShadowFileNode)n.Tag).SwapWith((Project.ShadowFileNode)CompileItems.Nodes[new_index].Tag);
 
             // Update the UI (the TreeView)
             CompileItems.Nodes.Remove(n);

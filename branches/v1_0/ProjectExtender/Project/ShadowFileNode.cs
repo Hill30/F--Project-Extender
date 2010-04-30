@@ -13,19 +13,32 @@ namespace FSharp.ProjectExtender.Project
         {
             buildItem = Items.Project.ProjectProxy.GetBuildItem(this);
         }
-        BuildItemProxy buildItem;
+        IBuildItem buildItem;
 
         protected override string SortOrder
         {
             get { return "e"; }
         }
-
-        public override BuildItemProxy BuildItem
+  
+        internal void SwapWith(ShadowFileNode target)
         {
-            get
-            {
-                return buildItem;
-            }
+            this.buildItem.SwapWith(target.buildItem);
         }
+
+        internal string GetDependencies()
+        {
+            return buildItem.GetMetadata(Constants.DependsOn);
+        }
+
+        internal void UpdateDependencies(List<ShadowFileNode> dependencies)
+        {
+            if (dependencies.Count == 0)
+                buildItem.RemoveMetadata(Constants.DependsOn);
+            else
+                buildItem.SetMetadata(Constants.DependsOn, dependencies.ConvertAll(elem => elem.buildItem.ToString()).Aggregate("", (a, item) => a + ',' + item).Substring(1));
+        }
+
+        public enum Direction { Up, Down }
+
     }
 }

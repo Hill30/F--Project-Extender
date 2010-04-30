@@ -101,7 +101,7 @@
     <Compile Include="Commands\ShowAll.cs" />
     <Compile Include="GlobalServices.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="Project\BuildItemProxy.cs" />
+    <Compile Include="Project\BuildItemProxy2008.cs" />
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />
     <Compile Include="Project\Excluded\ExcludedNode.cs" />
@@ -109,11 +109,6 @@
     <Compile Include="Project\ShadowFileNode.cs" />
     <Compile Include="Project\RootItemNode.cs" />
     <Compile Include="Project\ShadowFolderNode.cs" />
-    <Compile Include="Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ProjectExtenderPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -122,7 +117,6 @@
     <Compile Include="Project\IProjectManager.cs" />
     <Compile Include="Project\ItemList.cs" />
     <Compile Include="Project\ItemNode.cs" />
-    <Compile Include="MSBuildUtilities\MSBuildManager.cs" />
     <Compile Include="Project\ProjectManager.cs" />
     <Compile Include="CompileOrderDialog\Page.cs" />
     <Compile Include="CompileOrderDialog\Viewer.cs">
@@ -136,6 +130,11 @@
     </Compile>
     <Compile Include="CompileOrderDialog\EditDependenciesDialog.Designer.cs">
       <DependentUpon>EditDependenciesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="StructuresEnums.cs">
       <SubType>Code</SubType>
@@ -159,6 +158,9 @@
       <MergeWithCTO>true</MergeWithCTO>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MSBuildUtilities\" />
   </ItemGroup>
   <!-- Templates -->
   <PropertyGroup>

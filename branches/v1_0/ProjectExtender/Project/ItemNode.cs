@@ -22,7 +22,6 @@ namespace FSharp.ProjectExtender.Project
             items.Register(this);
         }
 
-        public virtual BuildItemProxy BuildItem { get { throw new Exception("Build Item - not implemented"); } }
         public ItemNode Parent { get; private set; }
         public uint ItemId { get; private set; }
 
@@ -109,30 +108,7 @@ namespace FSharp.ProjectExtender.Project
         }
 
         internal virtual void SetShowAll(bool show_all)
-        {
-        }
-
-        /// <param name="dir"></param>
-        internal void Move(Direction direction)
-        {
-            this.BuildItem.Move(direction);
-            //Items.Project.ProjectProxy.Move(this, direction);
-        }
-        
-        internal string GetDependencies()
-        {
-            return BuildItem.GetMetadata(Constants.DependsOn);
-        }
-
-        internal void UpdateDependencies(List<ItemNode> dependencies)
-        {
-            if (dependencies.Count == 0)
-                BuildItem.RemoveMetadata(Constants.DependsOn);
-            else
-                BuildItem.SetMetadata(Constants.DependsOn, dependencies.ConvertAll(elem => elem.BuildItem.ToString()).Aggregate("", (a, item) => a + ',' + item).Substring(1));
-        }
-        public enum Direction { Up, Down }
-
+        { }
 
         #region IEnumerable<ItemNode> Members
 

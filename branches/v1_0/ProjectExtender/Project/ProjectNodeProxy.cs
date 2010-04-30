@@ -11,7 +11,7 @@ using System.IO;
 
 namespace FSharp.ProjectExtender.Project
 {
-    class ProjectNodeProxy : IEnumerable<BuildItemProxy>
+    class ProjectNodeProxy : IEnumerable<IBuildItem>
     {
         
         struct Tuple<T1, T2, T3>
@@ -36,8 +36,8 @@ namespace FSharp.ProjectExtender.Project
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);
             BuildProject = projectNode.BuildProject;
 
-            var item_list = new List<BuildItemProxy>();
-            var fixup_list = new List<Tuple<BuildItemProxy, int, int>>();
+            var item_list = new List<IBuildItem>();
+            var fixup_list = new List<Tuple<IBuildItem, int, int>>();
 
             foreach (var item in this)
             {
@@ -49,7 +49,7 @@ namespace FSharp.ProjectExtender.Project
                     case "None":
                         int offset;
                         if (int.TryParse(item.GetMetadata(Constants.moveByTag), out offset))
-                            fixup_list.Insert(0, new Tuple<BuildItemProxy, int, int>(item, offset, item_list.Count - 1));
+                            fixup_list.Insert(0, new Tuple<IBuildItem, int, int>(item, offset, item_list.Count - 1));
                         break;
                     default:
                         break;
@@ -59,7 +59,7 @@ namespace FSharp.ProjectExtender.Project
             foreach (var item in fixup_list)
             {
                 for (int i = 1; i <= item.MoveBy; i++)
-                    item.Element.Move(ItemNode.Direction.Down);
+                    item.Element.SwapWith(item_list[item.Index + i]);
                 item_list.Remove(item.Element);
                 item_list.Insert(item.Index + item.MoveBy, item.Element);
             }
@@ -131,21 +131,7 @@ namespace FSharp.ProjectExtender.Project
             return projectNode.CreateFolderNodes(Path).ID;
         }
 
-        /// <summary>
-        /// Moves the build item for a given file node in the specified direction
-        /// </summary>
-        /// <param name="itemNode"></param>
-        /// <param name="direction"></param>
-        internal void Move(ItemNode itemNode, ItemNode.Direction direction)
-        {
-            var node = projectNode.NodeFromItemId(itemNode.ItemId);
-            node.GetType().InvokeMember(
-                (direction == ItemNode.Direction.Down) ? "MoveDown" : "MoveUp",
-                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod,
-                null, null, new object[] {node, projectNode});
-        }
-
-        internal BuildItemProxy GetBuildItem(ShadowFileNode shadowFileNode)
+        internal IBuildItem GetBuildItem(ShadowFileNode shadowFileNode)
         {
             var node = projectNode.NodeFromItemId(shadowFileNode.ItemId);
             var node_property = node.GetType().GetProperty("ItemNode", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -154,7 +140,6 @@ namespace FSharp.ProjectExtender.Project
             return new BuildItemProxy(build_item_property.GetValue(itemNode, new object[] { }));
         }
 
-
         /// <summary>
         /// Adjusts the positions of build elements to ensure the project can be loaded by the FSharp project system
         /// </summary>
@@ -162,8 +147,8 @@ namespace FSharp.ProjectExtender.Project
         {
 
             var fixup_dictionary = new Dictionary<string, int>();
-            var fixup_list = new List<Tuple<BuildItemProxy, int, int>>();
-            var itemList = new List<BuildItemProxy>();
+            var fixup_list = new List<Tuple<IBuildItem, int, int>>();
+            var itemList = new List<IBuildItem>();
             int count = 0;
 
             foreach (var item in this.Where(
@@ -192,7 +177,7 @@ namespace FSharp.ProjectExtender.Project
                             item.SetMetadata(Constants.moveByTag, offset.ToString());
 
                             // add the item to the fixup list
-                            fixup_list.Add(new Tuple<BuildItemProxy, int, int>(item, offset, count - 1));
+                            fixup_list.Add(new Tuple<IBuildItem, int, int>(item, offset, count - 1));
 
                             // increment item positions in the fixup dictionary to reflect 
                             // change in their position caused by an element inserted in front of them
@@ -228,21 +213,23 @@ namespace FSharp.ProjectExtender.Project
             foreach (var item in fixup_list)
             {
                 for (int i = 1; i <= item.MoveBy; i++)
-                    item.Element.Move(ItemNode.Direction.Down);
+                    item.Element.SwapWith(itemList[item.Index - i]);
                 itemList.Remove(item.Element);
                 itemList.Insert(item.Index - item.MoveBy, item.Element);
             }
 #if VS2008
-            BuildProject.Save(project.ProjectProxy.BuildProject.FullFileName);
+            BuildProject.Save(BuildProject.FullFileName);
 #elif VS2010
             BuildProject.Save();
 #endif
         }
 
-        public IEnumerator<BuildItemProxy> GetEnumerator()
+        public IEnumerator<IBuildItem> GetEnumerator()
         {
 #if VS2008
-            throw new NotImplementedException();
+            foreach (Microsoft.Build.BuildEngine.BuildItemGroup group in BuildProject.ItemGroups)
+                foreach (var item in group.ToArray())
+                    yield return new BuildItemProxy(item);
 #elif VS2010
             foreach (var item in BuildProject.Items)
                 yield return new BuildItemProxy(item);
