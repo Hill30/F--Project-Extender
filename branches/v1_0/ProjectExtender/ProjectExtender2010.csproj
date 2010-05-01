@@ -129,9 +129,7 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\ProjectExtender.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Commands\ProjectExtender.cs" />
     <Compile Include="Commands\Refresh.cs" />
     <Compile Include="Commands\ShowAll.cs" />
     <Compile Include="GlobalServices.cs" />

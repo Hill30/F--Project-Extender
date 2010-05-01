@@ -9,6 +9,8 @@ using System.ComponentModel.Design;
 using System.Xml;
 using System.Runtime.InteropServices;
 using OleConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
+using Microsoft.Build.BuildEngine;
+using Microsoft.VisualStudio.FSharp.ProjectSystem;
 
 namespace FSharp.ProjectExtender.Commands
 {
@@ -22,7 +24,7 @@ namespace FSharp.ProjectExtender.Commands
 
         private const string enable_extender_text = "Enable F# project extender";
         private const string disable_extender_text = "Disable F# project extender";
-        private const string disable_warning = "For projects with subdirectories disabling extender can produce a project file incompatible with the F# project system.\n Press OK to proceed or Cancel to cancel";
+        private const string disable_warning = "For projects with subdirectories it may or may not be possible to keep compilation order as defined in the extender.\n\n Press OK to proceed or Cancel to cancel";
 
         /// <summary>
         /// Modifies caption on the project extender command
@@ -66,18 +68,15 @@ namespace FSharp.ProjectExtender.Commands
         /// </summary>
         /// <param name="vsProject">project to be modified</param>
         /// <param name="effector"></param>
-        private static void ModifyProject(IVsProject vsProject, Action<XmlDocument> effector)
+        private static void ModifyProject(IVsProject vsProject, Func<string, string> effector)
         {
             var project = GlobalServices.getFSharpProjectNode(vsProject);
-            var MSBuildProject = project.BuildProject;
 
-            // method get_XmlDocument on the MSBuild project is internal
-            // We will have to use reflection to call it
-            var minfo = typeof(Microsoft.Build.BuildEngine.Project)
-                .GetMethod("get_XmlDocument", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-            // apply modifications to XML
-            effector((XmlDocument)minfo.Invoke(MSBuildProject, new object[] { }));
+            set_ProjectTypeGuids(
+                project, 
+                effector(
+                    get_ProjectTypeGuids(project)
+                    ));
 
             // Set dirty flag to true to force project save
             project.SetProjectFileDirty(true);
@@ -89,62 +88,74 @@ namespace FSharp.ProjectExtender.Commands
             GlobalServices.dte.ExecuteCommand("Project.ReloadProject", "");
         }
 
-        private const string msBuildNamespace = "http://schemas.microsoft.com/developer/msbuild/2003";
-        private static XmlNamespaceManager namespace_manager = NamespaceManager();
-
-        private static XmlNamespaceManager NamespaceManager()
+        private static string get_ProjectTypeGuids(ProjectNode project)
         {
-            var result = new XmlNamespaceManager(new NameTable());
-            result.AddNamespace("default", msBuildNamespace);
-            return result;
+#if VS2008
+            foreach (BuildPropertyGroup group in project.BuildProject.PropertyGroups)
+            {
+                foreach (BuildProperty property in group)
+                {
+                    if (property.Name == "ProjectTypeGuids")
+                    {
+                        group.RemoveProperty(property);
+                        return property.Value;
+                    }
+                }
+            }
+            return null;
+#elif VS2010
+            var property = project.BuildProject.Properties.FirstOrDefault(prop => prop.Name == "ProjectTypeGuids");
+            if (property == null)
+                return null;
+            return property.EvaluatedValue;
+#endif
+        }
+
+        private static void set_ProjectTypeGuids(ProjectNode project, string value)
+        {
+#if VS2008
+            foreach (BuildPropertyGroup group in project.BuildProject.PropertyGroups)
+            {
+                foreach (BuildProperty property in group)
+                {
+                    if (property.Name == "ProjectGuid")
+                    {
+                        group.AddNewProperty("ProjectTypeGuids", value);
+                        return;
+                    }
+                }
+            }
+#elif VS2010
+            project.BuildProject.Xml.AddProperty("ProjectTypeGuids", value);
+#endif
         }
 
         /// <summary>
         /// Modifies the XML to enable the extender
         /// </summary>
         /// <param name="project"></param>
-        private static void enable_extender(XmlDocument project)
+        private static string enable_extender(string old_types)
         {
-            // Locate the ProjectTypeGuids node
-            var projectTypeGuids = project.SelectSingleNode("//default:Project/default:PropertyGroup/default:ProjectTypeGuids", namespace_manager);
-            if (projectTypeGuids == null)
-            {
-                // Not found - create a new one
-                projectTypeGuids = project.CreateElement("ProjectTypeGuids", msBuildNamespace);
-                var projectGuid = project.SelectSingleNode("//default:Project/default:PropertyGroup/default:ProjectGuid", namespace_manager);
-                // insert it after the ProjectGuid node
-                projectGuid.ParentNode.InsertAfter(projectTypeGuids, projectGuid);
-                // initialize the project type guid list
-                projectTypeGuids.InnerText = "{" + Constants.guidProjectExtenderFactoryString + "};{" + Constants.guidFSharpProjectString + "}";
-            }
-            else
-            {
-                // parse the existing guid list
-                var types = new List<string>(projectTypeGuids.InnerText.Split(';'));
+            if (old_types == null)
+                return "{" + Constants.guidProjectExtenderFactoryString + "};{" + Constants.guidFSharpProjectString + "}";
 
-                // prepend the guid list with the extender project type 
-                types.Insert(0, '{' + Constants.guidProjectExtenderFactoryString + '}');
+            // parse the existing guid list
+            var types = new List<string>(old_types.Split(';'));
 
-                // format the guid list
-                var typestring = "";
-                types.ForEach(type => typestring += ';' + type);
-                // replace the guid list
-                projectTypeGuids.InnerText = typestring.Substring(1);
-            }
+            // prepend the guid list with the extender project type 
+            types.Insert(0, '{' + Constants.guidProjectExtenderFactoryString + '}');
+
+            // format the guid list
+            var typestring = "";
+            types.ForEach(type => typestring += ';' + type);
+
+            return typestring.Substring(1);
         }
 
-        /// <summary>
-        /// Modifies XML to disable extender
-        /// </summary>
-        /// <param name="project"></param>
-        private static void disable_extender(XmlDocument project)
+        private static string disable_extender(string old_types)
         {
-            // locate the ProjectTypeGuids node
-            var projectTypeGuids = project.SelectSingleNode("//default:Project/default:PropertyGroup/default:ProjectTypeGuids", namespace_manager);
-            // remove the extender guid from the list
-            if (projectTypeGuids != null)
-                projectTypeGuids.InnerText =
-                    projectTypeGuids.InnerText.Replace('{' + Constants.guidProjectExtenderFactoryString + "};", "");
+            return old_types.Replace('{' + Constants.guidProjectExtenderFactoryString + "};", "");
         }
+
     }
 }
