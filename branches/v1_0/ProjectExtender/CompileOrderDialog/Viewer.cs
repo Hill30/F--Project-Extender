@@ -35,7 +35,7 @@ namespace FSharp.ProjectExtender
             CompileItems.Nodes.Clear();
             foreach (IBuildItem element in project.BuildItems)
             {
-                if (element.Name != "Compile")
+                if (element.Type != "Compile")
                     continue;
                 TreeNode compileItem = new TreeNode(element.Include);
                 compileItem.Tag = project.Items[project.ProjectDir + "\\" + element.Include];

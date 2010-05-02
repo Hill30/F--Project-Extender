@@ -42,7 +42,7 @@ namespace FSharp.ProjectExtender.Project
             foreach (var item in this)
             {
                 item_list.Add(item);
-                switch (item.Name)
+                switch (item.Type)
                 {
                     case "Compile":
                     case "Content":
@@ -152,7 +152,7 @@ namespace FSharp.ProjectExtender.Project
             int count = 0;
 
             foreach (var item in this.Where(
-                    n => n.Name == "Compile" || n.Name == "Content" || n.Name == "None"
+                    n => n.Type == "Compile" || n.Type == "Content" || n.Type == "None"
                     ))
             {
                 item.RemoveMetadata(Constants.moveByTag);

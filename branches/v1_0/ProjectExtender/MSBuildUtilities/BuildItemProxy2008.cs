@@ -10,20 +10,20 @@ using BuildProject = Microsoft.Build.BuildEngine.Project;
 namespace FSharp.ProjectExtender.Project
 {
     /// <summary>
-    /// This class is used to switch between BuildItem and ProjectItem types 
-    /// depending on whether the package is build for VS2008 or VS2010
+    /// This is a VS2008 specific implementation of the IBuildItem interface
     /// </summary>
     public class BuildItemProxy : IBuildItem
     {
         public string Include { get; private set; }
-        public string Name { get; private set; }
+        public string Type { get; private set; }
         
-        internal BuildItemProxy(object buildItem )
+        internal BuildItemProxy(object buildItem)
         {
             instance = (Microsoft.Build.BuildEngine.BuildItem)buildItem;
 
             // I am not sure what's going on here, but sometimes, in particular when the project is initialized
-            // the build item is not what we are getting here, but rather the 'parentPersistedItem"
+            // the build item is not what we are getting here, but rather the child element
+            // 'get_ParentPersistedItem" gives us what we need
             var persisted_instance = (BuildItem)typeof(BuildItem)
                 .InvokeMember("get_ParentPersistedItem", BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance, null, instance, new object[] { });
             if (persisted_instance != null)
@@ -45,7 +45,7 @@ namespace FSharp.ProjectExtender.Project
             }
 
             Include = instance.Include;
-            Name = instance.Name;
+            Type = instance.Name;
         }
 
         private BuildItem instance;
