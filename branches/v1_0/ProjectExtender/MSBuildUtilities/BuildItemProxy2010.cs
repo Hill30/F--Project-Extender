@@ -16,7 +16,7 @@ namespace FSharp.ProjectExtender.Project
 
         public string Include { get { return instance.Include; } }
 
-        public string Name { get { return instance.ItemType; } }
+        public string Type { get { return instance.ItemType; } }
 
         public string GetMetadata(string name)
         {
