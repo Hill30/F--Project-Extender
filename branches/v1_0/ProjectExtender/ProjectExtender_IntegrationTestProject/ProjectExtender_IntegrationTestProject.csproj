@@ -63,7 +63,7 @@
     <Compile Include="Tests\ExtenderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ProjectExtender.csproj">
+    <ProjectReference Include="..\ProjectExtender2008.csproj">
       <Project>{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}</Project>
       <Name>ProjectExtender</Name>
     </ProjectReference>

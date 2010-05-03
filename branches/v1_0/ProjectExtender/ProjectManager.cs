@@ -32,7 +32,7 @@ namespace FSharp.ProjectExtender
         bool show_all = false;
         bool renaimng_in_progress = false;
         bool exclude_in_progress = false;
-        ProjectNodeProxy projectProxy;
+        BuildProjectProxy projectProxy;
 
         public ProjectManager()
             : base()
@@ -42,7 +42,7 @@ namespace FSharp.ProjectExtender
 
         public string ProjectDir { get; set; }
 
-        internal ProjectNodeProxy ProjectProxy { get { return projectProxy; } }
+        internal BuildProjectProxy ProjectProxy { get { return projectProxy; } }
 
         /// <summary>
         /// Sets the service provider from which to access the services. 
@@ -66,7 +66,7 @@ namespace FSharp.ProjectExtender
             string name;
             innerProject.GetMkDocument(VSConstants.VSITEMID_ROOT,out name);
             ProjectDir = name.Substring(0,name.LastIndexOf('\\'));
-            projectProxy = new ProjectNodeProxy(innerProject);
+            projectProxy = new BuildProjectProxy(innerProject);
             itemList = new ItemList(this);
             hierarchy_event_cookie = AdviseHierarchyEvents(itemList);
             ErrorHandler.ThrowOnFailure(GlobalServices.documentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));

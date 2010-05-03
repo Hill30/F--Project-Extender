@@ -11,7 +11,7 @@ using System.IO;
 
 namespace FSharp.ProjectExtender.Project
 {
-    class ProjectNodeProxy : IEnumerable<IBuildItem>
+    class BuildProjectProxy : IEnumerable<IBuildItem>
     {
         
         struct Tuple<T1, T2, T3>
@@ -31,10 +31,9 @@ namespace FSharp.ProjectExtender.Project
         }
         
         ProjectNode projectNode;
-        public ProjectNodeProxy(IVsProject innerProject)
+        public BuildProjectProxy(IVsProject innerProject)
         {
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);
-            BuildProject = projectNode.BuildProject;
 
             var item_list = new List<IBuildItem>();
             var fixup_list = new List<Tuple<IBuildItem, int, int>>();
@@ -64,12 +63,6 @@ namespace FSharp.ProjectExtender.Project
                 item_list.Insert(item.Index + item.MoveBy, item.Element);
             }
         }
-
-#if VS2008
-        public Microsoft.Build.BuildEngine.Project BuildProject { get; private set; }
-#elif VS2010
-        public Microsoft.Build.Evaluation.Project BuildProject { get; private set; }
-#endif
 
         /// <summary>
         /// Invalidates the solution explorer by calling OnInvalidateItems 
@@ -218,20 +211,20 @@ namespace FSharp.ProjectExtender.Project
                 itemList.Insert(item.Index - item.MoveBy, item.Element);
             }
 #if VS2008
-            BuildProject.Save(BuildProject.FullFileName);
+            projectNode.BuildProject.Save(projectNode.BuildProject.FullFileName);
 #elif VS2010
-            BuildProject.Save();
+            projectNode.BuildProject.Save();
 #endif
         }
 
         public IEnumerator<IBuildItem> GetEnumerator()
         {
 #if VS2008
-            foreach (Microsoft.Build.BuildEngine.BuildItemGroup group in BuildProject.ItemGroups)
+            foreach (Microsoft.Build.BuildEngine.BuildItemGroup group in projectNode.BuildProject.ItemGroups)
                 foreach (var item in group.ToArray())
                     yield return new BuildItemProxy(item);
 #elif VS2010
-            foreach (var item in BuildProject.Xml.Items)
+            foreach (var item in projectNode.BuildProject.Xml.Items)
                 yield return new BuildItemProxy(item);
 #endif
         }

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectExtender2008", "ProjectExtender2008.csproj", "{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectExtender_IntegrationTestProject", "ProjectExtender_IntegrationTestProject\ProjectExtender_IntegrationTestProject.csproj", "{256F4845-187A-461A-BF15-79E05A466472}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{256F4845-187A-461A-BF15-79E05A466472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{256F4845-187A-461A-BF15-79E05A466472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{256F4845-187A-461A-BF15-79E05A466472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{256F4845-187A-461A-BF15-79E05A466472}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

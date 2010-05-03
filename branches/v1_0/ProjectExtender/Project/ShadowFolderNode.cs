@@ -65,32 +65,13 @@ namespace FSharp.ProjectExtender.Project
 
     }
 
-    class PhysicalFolderNode : ShadowFolderNode
+    class RootItemNode : ShadowFolderNode
     {
-        public PhysicalFolderNode(ItemList items, ItemNode parent, uint itemId, string path)
-            : base(items, parent, itemId, Constants.ItemNodeType.PhysicalFolder, path)
+        public RootItemNode(ItemList items, string path)
+            : base(items, null, VSConstants.VSITEMID_ROOT, Constants.ItemNodeType.Root, path)
         { }
 
-        protected override string SortOrder
-        {
-            get { return "d"; }
-        }
-    }
-
-    class VirtualFolderNode : ShadowFolderNode
-    {
-        public VirtualFolderNode(ItemList items, ItemNode parent, uint itemId, string path)
-            : base(items, parent, itemId, Constants.ItemNodeType.VirtualFolder, path)
-        { }
-
-        protected override string SortOrder
-        {
-            get { return "c"; }
-        }
-
-        internal override void SetShowAll(bool show_all)
-        {
-        }
+        protected override string SortOrder { get { return "a"; } }
     }
 
     class SubprojectNode : ShadowFolderNode
@@ -99,9 +80,26 @@ namespace FSharp.ProjectExtender.Project
             : base(items, parent, itemId, Constants.ItemNodeType.SubProject, path)
         { }
 
-        protected override string SortOrder
-        {
-            get { return "b"; }
-        }
+        protected override string SortOrder { get { return "b"; } }
+    }
+
+    class VirtualFolderNode : ShadowFolderNode
+    {
+        public VirtualFolderNode(ItemList items, ItemNode parent, uint itemId, string path)
+            : base(items, parent, itemId, Constants.ItemNodeType.VirtualFolder, path)
+        { }
+
+        protected override string SortOrder { get { return "c"; } }
+
+        internal override void SetShowAll(bool show_all) { } // SetShowAll is a NOOP for virtual folders
+    }
+
+    class PhysicalFolderNode : ShadowFolderNode
+    {
+        public PhysicalFolderNode(ItemList items, ItemNode parent, uint itemId, string path)
+            : base(items, parent, itemId, Constants.ItemNodeType.PhysicalFolder, path)
+        { }
+
+        protected override string SortOrder { get { return "d"; } }
     }
 }

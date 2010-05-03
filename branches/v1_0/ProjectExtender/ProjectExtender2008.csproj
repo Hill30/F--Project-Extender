@@ -106,7 +106,7 @@
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />
     <Compile Include="Project\Excluded\ExcludedNode.cs" />
-    <Compile Include="Project\ProjectNodeProxy.cs" />
+    <Compile Include="MSBuildUtilities\BuildProjectProxy.cs" />
     <Compile Include="Project\ShadowFileNode.cs" />
     <Compile Include="Project\RootItemNode.cs" />
     <Compile Include="Project\ShadowFolderNode.cs" />
@@ -115,10 +115,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Project\IProjectManager.cs" />
+    <Compile Include="IProjectManager.cs" />
     <Compile Include="Project\ItemList.cs" />
     <Compile Include="Project\ItemNode.cs" />
-    <Compile Include="Project\ProjectManager.cs" />
+    <Compile Include="ProjectManager.cs" />
     <Compile Include="CompileOrderDialog\Page.cs" />
     <Compile Include="CompileOrderDialog\Viewer.cs">
       <SubType>UserControl</SubType>

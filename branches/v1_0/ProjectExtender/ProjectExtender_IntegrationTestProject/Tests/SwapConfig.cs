@@ -8,131 +8,140 @@ using System.Reflection;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
+using FSharp.ProjectExtender.Project;
 
 namespace IntegrationTests
 {
-    public struct MoveOp
+    public enum Move 
+    { Up, Down }
+
+    public struct Action
     {
-        public int Index { get; set; }
-        public CompileOrderViewer.Direction Dir { get; set; }
+        public Action(int index, Move direction)
+        {
+            this.index = index;
+            this.method = "Unknown";
+            switch (direction)
+            {
+                case Move.Up:
+                    method = "MoveUp_Click";
+                    break;
+                case Move.Down:
+                    method = "MoveDown_Click";
+                    break;
+            }
+        }
+        int index;
+        string method;
+        public int Index { get { return index; } }
+        public string Method { get { return method; } }
     }
-    public interface ISwapConfig
-    {
-        ISwapConfig ExpectedOrder(params string[] filenames);
-        ISwapConfig Move(params MoveOp[] moves);
-        void Run();
-    }
-    public class SwapConfig : ISwapConfig
+
+    public class UseCase
     {
         List<string> fileList;
-        List<MoveOp> actions;
-        string name;
+        List<Action> actions;
         TestContext ctx;
-        internal SwapConfig(string configName,ref TestContext testContext)
+        string name;
+        
+        public UseCase(string name, TestContext testContext)
         {
-            name = configName;
+            this.name = name;
             ctx = testContext;
             fileList = new List<string>();
-            actions = new List<MoveOp>();
+            actions = new List<Action>();
         }
-        public ISwapConfig ExpectedOrder(params string[] filenames)
-        {
-            foreach (string item in filenames)
-                fileList.Add(item);
-            return this;
-        }
-        public ISwapConfig Move(params MoveOp[] moves)
-        {
-            foreach (MoveOp move in moves)
-                actions.Add(move);
-            return this;
 
+        private UseCase(UseCase parent, IEnumerable<string> filenames)
+        {
+            name = parent.name;
+            ctx = parent.ctx;
+            fileList = new List<string>(filenames);
+            actions = parent.actions;
         }
+
+        private UseCase(UseCase parent, Action action)
+        {
+            name = parent.name;
+            ctx = parent.ctx;
+            fileList = parent.fileList;
+            actions = new List<Action>(parent.actions);
+            actions.Add(action);
+        }
+
+        public UseCase ExpectedOrder(params string[] filenames)
+        {
+            return new UseCase(this, filenames);
+        }
+        
+        public UseCase Apply(Action action)
+        {
+            return new UseCase(this, action);
+        }
+
+        IVsSolution sln = VsIdeTestHostContext.ServiceProvider.GetService(typeof(IVsSolution)) as IVsSolution;
+        CompileOrderViewer viewer;
+        IVsHierarchy hier;
+
         public void Run()
         {
             Initialize();
-            CompileOrderViewer viewer;
-            viewer = ctx.Properties["viewer"] as CompileOrderViewer;
-            foreach (MoveOp move in actions)
-                typeof(CompileOrderViewer).InvokeMember("MoveElement",
-                    BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance, null, viewer, new object[] { viewer.CompileItemsTree.Nodes[move.Index], move.Dir });
+            foreach (var action in actions)
+                typeof(CompileOrderViewer).InvokeMember(action.Method,
+                    BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance, null, viewer, 
+                    new object[] { viewer, EventArgs.Empty });
 
-            Check_OntheFly();
-            Check_Reopen();
+            viewer.Dispose();
 
+            ValidateOrder("Before re-open");
+
+            CloseSolution();
+
+            ReopenSolution();
+
+            ValidateOrder("After re-open");
+
+            CloseSolution();
         }
-        public void NoneChanged()
+
+        private void Initialize()
         {
-            Initialize();
-            IProjectManager project = ((IProjectManager)ctx.Properties["hierarchy"]);
-            project.BuildManager.FixupProject();
-            int i = 0;
-            foreach (var item in project.BuildManager.GetElements(n => n.Name == "Compile"))
-            {
-                Assert.AreEqual(fileList[i], item.ToString(),
-                    "Test {0} : Compilation order is wrong at {1} position", name, i);
-                i++;
-            }
-            CleanUp();
-
-
+            Assert.IsTrue(File.Exists(ctx.Properties["cleanproj"].ToString()), "Clean project file could not be found");
+            File.Delete(ctx.Properties["suo"].ToString());
+            File.Copy(ctx.Properties["cleanproj"].ToString(), ctx.Properties["testproj"].ToString(), true);
+            sln.OpenSolutionFile((uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent, ctx.Properties["slnfile"].ToString());
+            sln.GetProjectOfUniqueName(ctx.Properties["testproj"].ToString(), out hier);
+            Assert.IsNotNull(hier, "Failed to open the clean test project");
+            viewer = new CompileOrderViewer((IProjectManager)hier);
+            Assert.IsNotNull(viewer, "Fail to create Viewer");
         }
-        private void Check_OntheFly()
-        {
-            //Check order 1 (Changes to project file On-the-fly)
-            IProjectManager project = (IProjectManager)ctx.Properties["hierarchy"];
-            int i = 0;
-            foreach (var item in project.BuildManager.GetElements(n => n.Name == "Compile" ))
-            {
-                Assert.AreEqual(fileList[i], item.ToString(),
-                    "Test {0} : Compilation order is wrong at {1} position", name, i);
-                i++;
-            }
-            CleanUp();
 
-        }
-        private void Check_Reopen()
+        private void CloseSolution()
         {
-            //Check order 3 (Reopen project - check changes have been saved correctly)
-            IVsSolution sln = (ctx.Properties["solution"] as IVsSolution);
-            IVsHierarchy hier;
+            ((IVsSolution)ctx.Properties["solution"]).CloseSolutionElement
+                ((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_SLNSAVEOPT_MASK, null, 0);
+        }
+
+        private void ReopenSolution()
+        {
             sln.OpenSolutionFile(
                 (uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent, ctx.Properties["slnfile"].ToString());
             sln.GetProjectOfUniqueName(ctx.Properties["testfile"].ToString(), out hier);
-            IProjectManager project = (IProjectManager)hier;
+        }
+
+        private void ValidateOrder(string message)
+        {
+            var project = hier as IProjectManager;
+            Assert.IsNotNull(project, "Project is not an extender project");
             int i = 0;
-            
-            foreach (var item in project.BuildManager.GetElements(n => n.Name == "Compile" ))
+            foreach (IBuildItem item in project.BuildItems)
             {
-                Assert.AreEqual(item.ToString(), fileList[i],
-                    "Test {0} after reopen : Compilation order is wrong at {1} position", name, i);
+                if (item.Type != "Compile")
+                    continue;
+                Assert.AreEqual(fileList[i], item.ToString(),
+                    message + "Use case {0} : Invalid build item order at position {1}. Expected {2}, found {3}", name, i, fileList[i], item.ToString());
                 i++;
             }
-
-            sln.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_SLNSAVEOPT_MASK, null, 0);
-
-        }
-        private void CleanUp()
-        {
-            ((CompileOrderViewer)ctx.Properties["viewer"]).Dispose();
-            ((IVsSolution)ctx.Properties["solution"]).CloseSolutionElement
-                ((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_SLNSAVEOPT_MASK, null, 0);
-
-        }
-        private void Initialize()
-        {
-            File.Delete(ctx.Properties["suo"].ToString());
-            File.Copy(ctx.Properties["projfile"].ToString(), ctx.Properties["testfile"].ToString(), true);
-            IVsHierarchy hier;
-            IVsSolution sln = VsIdeTestHostContext.ServiceProvider.GetService(typeof(IVsSolution)) as IVsSolution;
-            sln.OpenSolutionFile((uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent, ctx.Properties["slnfile"].ToString());
-            sln.GetProjectOfUniqueName(ctx.Properties["testfile"].ToString(), out hier);
-            Assert.IsNotNull(hier, "Project is not IProjectManager");
-            CompileOrderViewer viewer = new CompileOrderViewer((IProjectManager)hier);
-            Assert.IsNotNull(viewer, "Fail to create Viewer");
-            ctx.Properties["viewer"] = viewer;
-            ctx.Properties["solution"] = sln;
-            ctx.Properties["hierarchy"] = hier;
         }
 
     }
