@@ -5,7 +5,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectExtender2008", "Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectExtender_IntegrationTestProject", "ProjectExtender_IntegrationTestProject\ProjectExtender_IntegrationTestProject.csproj", "{256F4845-187A-461A-BF15-79E05A466472}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{296488BA-10A8-464C-B948-3F369F52F6C2}"
+	ProjectSection(SolutionItems) = preProject
+		ProjectExtender2008.vsmdi = ProjectExtender2008.vsmdi
+		TestRunConfig1.testrunconfig = TestRunConfig1.testrunconfig
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = ProjectExtender2008.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

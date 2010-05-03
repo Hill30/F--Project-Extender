@@ -87,13 +87,16 @@ namespace IntegrationTests
         {
             Initialize();
             foreach (var action in actions)
+            {
+                viewer.CompileItemsTree.SelectedNode = viewer.CompileItemsTree.Nodes[action.Index];
                 typeof(CompileOrderViewer).InvokeMember(action.Method,
-                    BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance, null, viewer, 
+                    BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Instance, null, viewer,
                     new object[] { viewer, EventArgs.Empty });
-
-            viewer.Dispose();
+            }
 
             ValidateOrder("Before re-open");
+
+            viewer.Dispose();
 
             CloseSolution();
 
@@ -118,7 +121,7 @@ namespace IntegrationTests
 
         private void CloseSolution()
         {
-            ((IVsSolution)ctx.Properties["solution"]).CloseSolutionElement
+            sln.CloseSolutionElement
                 ((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_SLNSAVEOPT_MASK, null, 0);
         }
 
@@ -126,7 +129,7 @@ namespace IntegrationTests
         {
             sln.OpenSolutionFile(
                 (uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent, ctx.Properties["slnfile"].ToString());
-            sln.GetProjectOfUniqueName(ctx.Properties["testfile"].ToString(), out hier);
+            sln.GetProjectOfUniqueName(ctx.Properties["testproj"].ToString(), out hier);
         }
 
         private void ValidateOrder(string message)
@@ -138,8 +141,8 @@ namespace IntegrationTests
             {
                 if (item.Type != "Compile")
                     continue;
-                Assert.AreEqual(fileList[i], item.ToString(),
-                    message + "Use case {0} : Invalid build item order at position {1}. Expected {2}, found {3}", name, i, fileList[i], item.ToString());
+                Assert.AreEqual(fileList[i], item.Include,
+                    message + ": Use case {0} : Invalid build item order at position {1}.", name, i);
                 i++;
             }
         }
