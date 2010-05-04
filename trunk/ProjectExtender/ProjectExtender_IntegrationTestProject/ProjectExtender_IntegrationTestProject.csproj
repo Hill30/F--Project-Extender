@@ -55,7 +55,7 @@
     <!---->
     <!---->
     <!---->
-    <Compile Include="Tests\SwapConfig.cs" />
+    <Compile Include="Tests\UseCase.cs" />
     <Compile Include="PackageTest.cs" />
     <Compile Include="IntegrationTest Library\DialogboxPurger.cs" />
     <Compile Include="IntegrationTest Library\NativeMethods.cs" />
@@ -63,9 +63,9 @@
     <Compile Include="Tests\ExtenderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ProjectExtender.csproj">
+    <ProjectReference Include="..\ProjectExtender2008.csproj">
       <Project>{C085BF9A-0393-4D2C-8EAE-7BA0ED1EEB09}</Project>
-      <Name>ProjectExtender</Name>
+      <Name>ProjectExtender2008</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using Microsoft.VisualStudio;
 using System.IO;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.Build.BuildEngine;
 
 namespace FSharp.ProjectExtender.Project
 {
@@ -106,8 +108,7 @@ namespace FSharp.ProjectExtender.Project
         }
 
         internal virtual void SetShowAll(bool show_all)
-        {
-        }
+        { }
 
         #region IEnumerable<ItemNode> Members
 

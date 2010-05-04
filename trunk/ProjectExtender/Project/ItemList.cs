@@ -28,14 +28,33 @@ namespace FSharp.ProjectExtender.Project
     /// </remarks>
     public class ItemList : IVsHierarchyEvents
     {
-        ProjectManager project;
         IVsHierarchy root_hierarchy;
-        Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
-        Dictionary<string, ItemNode> itemKeyMap = new Dictionary<string, ItemNode>();
-        ItemNode root;
-        public const int ExcludedNodeStart = 0x0100000;
-        uint nextItemId = ExcludedNodeStart;
+        private Dictionary<uint, ItemNode> itemMap = new Dictionary<uint, ItemNode>();
+        private Dictionary<string, ItemNode> itemKeyMap = new Dictionary<string, ItemNode>();
+        private ItemNode root;
 
+        /// <summary>
+        /// Initial value for the itemId for Excluded nodes. When excluded nodes are created they are assigned IDs starting from 
+        /// this number. We assume that the real nodes will never get IDs this big. Any items with IDs greater than this number 
+        /// are considered to be Excluded nodes
+        /// </summary>
+        public const int ExcludedNodeStart = 0x0100000;
+        
+        /// <summary>
+        /// The ID to assign to the next Excluded node
+        /// </summary>
+        private uint nextItemId = ExcludedNodeStart;
+
+        /// <summary>
+        /// returns the next available itemID for the excluded nodes
+        /// </summary>
+        /// <returns></returns>
+        internal uint GetNextItemID()
+        {
+            return nextItemId++;
+        }
+
+        public ProjectManager Project { get; private set; }
 
         /// <summary>
         /// Initalizes a new instance of the itemlist
@@ -43,14 +62,9 @@ namespace FSharp.ProjectExtender.Project
         /// <param name="project"></param>
         public ItemList(ProjectManager project)
         {
-            this.project = project;
+            this.Project = project;
             root_hierarchy = (IVsHierarchy)project;
             root = CreateNode(VSConstants.VSITEMID_ROOT);
-        }
-
-        public void AddChild(ItemNode itemNode)
-        {
-            itemNode.Parent.AddChildNode(itemNode);
         }
 
         /// <summary>
@@ -133,6 +147,13 @@ namespace FSharp.ProjectExtender.Project
             return Constants.ItemNodeType.Unknown;
         }
 
+        /// <summary>
+        /// returns the NextSibling according to the element order in the ItemList. Used to override the default 
+        /// ordering of the F# Project Manager
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public int GetNextSibling(uint itemId, out object value)
         {
             ItemNode n;
@@ -146,6 +167,13 @@ namespace FSharp.ProjectExtender.Project
                 return VSConstants.E_INVALIDARG;
         }
 
+        /// <summary>
+        /// returns the FirstChild according to the element order in the ItemList. Used to override the default 
+        /// ordering of the F# Project Manager
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public int GetFirstChild(uint itemId, out object value)
         {
             ItemNode n;
@@ -159,11 +187,13 @@ namespace FSharp.ProjectExtender.Project
                 return VSConstants.E_INVALIDARG;
         }
 
-        internal uint GetNodeFirstChild(uint itemId)
-        {
-            return project.GetNodeChild(itemId);
-        }
-
+        /// <summary>
+        /// For Excluded Nodes redirects the property requests to the appropriate Excluded node
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="propId"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
         internal int GetProperty(uint itemId, int propId, out object property)
         {
             ItemNode node;
@@ -173,16 +203,10 @@ namespace FSharp.ProjectExtender.Project
             return VSConstants.DISP_E_MEMBERNOTFOUND;
         }
 
-        internal uint GetNextItemID()
-        {
-            return nextItemId++;
-        }
-
-        internal uint GetNodeSibling(uint itemId)
-        {
-            return project.GetNodeSibling(itemId);
-        }
-
+        /// <summary>
+        /// Registers the itemNode in the ItemList internal lists/dictionaries
+        /// </summary>
+        /// <param name="itemNode"></param>
         internal void Register(ItemNode itemNode)
         {
             itemMap.Add(itemNode.ItemId, itemNode);
@@ -192,6 +216,10 @@ namespace FSharp.ProjectExtender.Project
             itemKeyMap.Add(itemNode.Path, itemNode);
         }
 
+        /// <summary>
+        /// Removes the itemNode from the ItemList internal lists/dictionaries
+        /// </summary>
+        /// <param name="itemNode"></param>
         internal void Unregister(uint itemId)
         {
             ItemNode n;
@@ -202,11 +230,24 @@ namespace FSharp.ProjectExtender.Project
             }
         }
 
+        /// <summary>
+        /// Processes the Show All Files command
+        /// </summary>
+        /// <param name="show_all"></param>
         internal void SetShowAll(bool show_all)
         {
             root.SetShowAll(show_all);
+
+            // All Excluded ItemNodes are deleted we can reset the id
+            if (!show_all)
+                nextItemId = ExcludedNodeStart;
         }
 
+        /// <summary>
+        /// Determines whether the file is supposed to be visible if show_all is <b>true</b>
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public virtual bool ToBeHidden(string file)
         {
             string project_file;
@@ -255,7 +296,7 @@ namespace FSharp.ProjectExtender.Project
             if (itemMap.TryGetValue(itemid, out n))
             {
                 n.Delete();
-                if (project.ExcludeInProgress)
+                if (Project.ExcludeInProgress)
                     n.Parent.SetShowAll(true);
             }
             return VSConstants.S_OK;
@@ -276,7 +317,7 @@ namespace FSharp.ProjectExtender.Project
                     return VSConstants.E_INVALIDARG;
 
                 n.Remap();
-                project.InvalidateParentItems(new uint[] { itemid });
+                Project.InvalidateParentItems(new uint[] { itemid });
             }
             return VSConstants.S_OK;
         }
@@ -284,7 +325,7 @@ namespace FSharp.ProjectExtender.Project
         #endregion
 
         /// <summary>
-        /// Builds a list of nodes currently selectde in the solution explorer
+        /// Builds a list of nodes currently selected in the solution explorer
         /// </summary>
         /// <returns></returns>
         public List<ItemNode> GetSelectedNodes()
@@ -308,7 +349,7 @@ namespace FSharp.ProjectExtender.Project
                     {
                         // This is a single selection. Compare hirarchy with our hierarchy and get node from itemid
                         ItemNode node;
-                        if (GlobalServices.IsSameComObject(project, hierarchy) && itemMap.TryGetValue(itemid, out node))
+                        if (GlobalServices.IsSameComObject(Project, hierarchy) && itemMap.TryGetValue(itemid, out node))
                         {
                             selected_nodes.Add(node);
                         }
@@ -324,15 +365,15 @@ namespace FSharp.ProjectExtender.Project
                         bool isSingleHierarchy = (isSingleHierarchyInt != 0);
 
                         // Now loop all selected items and add to the list only those that are selected within this hierarchy
-                        if (!isSingleHierarchy || (isSingleHierarchy && GlobalServices.IsSameComObject(project, hierarchy)))
+                        if (!isSingleHierarchy || (isSingleHierarchy && GlobalServices.IsSameComObject(Project, hierarchy)))
                         {
-                            Debug.Assert(numberOfSelectedItems > 0, "Bad number of selected itemd");
+                            Debug.Assert(numberOfSelectedItems > 0, "Bad number of selected items");
                             VSITEMSELECTION[] vsItemSelections = new VSITEMSELECTION[numberOfSelectedItems];
                             uint flags = (isSingleHierarchy) ? (uint)__VSGSIFLAGS.GSI_fOmitHierPtrs : 0;
                             ErrorHandler.ThrowOnFailure(multiItemSelect.GetSelectedItems(flags, numberOfSelectedItems, vsItemSelections));
                             foreach (VSITEMSELECTION vsItemSelection in vsItemSelections)
                             {
-                                if (isSingleHierarchy || GlobalServices.IsSameComObject(project, vsItemSelection.pHier))
+                                if (isSingleHierarchy || GlobalServices.IsSameComObject(Project, vsItemSelection.pHier))
                                 {
                                     ItemNode node;
                                     if (itemMap.TryGetValue(vsItemSelection.itemid, out node))
@@ -412,14 +453,24 @@ namespace FSharp.ProjectExtender.Project
             }
         }
 
+        /// <summary>
+        /// Includes the file represented by the Excluded Node into the project
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         internal int IncludeFileItem(ItemNode node)
         {
             node.Delete();
-            int result = project.AddFileItem(node.Parent.ItemId, node.Path);
-            project.RefreshSolutionExplorer(new ItemNode[] { node });
+            int result = Project.ProjectProxy.AddFileItem(node.Parent.ItemId, node.Path);
+            Project.RefreshSolutionExplorer(new ItemNode[] { node });
             return result;
         }
 
+        /// <summary>
+        /// Includes all files in the Excluded folder in the project 
+        /// </summary>
+        /// <param name="node">Excluded Node representing the folder</param>
+        /// <returns></returns>
         internal int IncludeFolderItem(ItemNode node)
         {
             var files = new List<string>();
@@ -438,13 +489,18 @@ namespace FSharp.ProjectExtender.Project
                 }
             }
             node.Delete();
-            uint parent = project.AddFolderItem(node.Path);
+            uint parent = Project.ProjectProxy.AddFolderItem(node.Path);
             foreach (var file in files)
-                ErrorHandler.ThrowOnFailure(project.AddFileItem(parent, file));
-            project.RefreshSolutionExplorer(new ItemNode[] { node });
+                ErrorHandler.ThrowOnFailure(Project.ProjectProxy.AddFileItem(parent, file));
+            Project.RefreshSolutionExplorer(new ItemNode[] { node });
             return VSConstants.S_OK;
         }
 
+        /// <summary>
+        /// Builds a list of ItemNodes with the same paths as the ones in the list passed as a parameter
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <returns></returns>
         internal IEnumerable<ItemNode> RemapNodes(IEnumerable<ItemNode> nodes)
         {
             List<ItemNode> result = new List<ItemNode>();
@@ -456,6 +512,8 @@ namespace FSharp.ProjectExtender.Project
             }
             return result;
         }
+
+        public ItemNode this[string path] { get { return itemKeyMap[path]; } }
     }
 
 }
