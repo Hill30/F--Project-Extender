@@ -28,8 +28,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ExtenderReg.wxi" />
-    <Content Include="lib\ProjectExtender.dll" />
-    <Content Include="lib\ProjectExtender.pkgdef" />
+    <Content Include="lib\extension.vsixmanifest" />
+    <Content Include="lib\ProjectExtender2008.dll" />
+    <Content Include="lib\ProjectExtender2010.dll" />
+    <Content Include="lib\ProjectExtender2010.pkgdef" />
+    <Content Include="lib\ProjectExtender2010.vsix" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">
