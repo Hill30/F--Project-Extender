@@ -36,9 +36,9 @@
     <Registry Name="Package" Value="{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" Type="string" />
   </Registry>
 
-  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\NewProjectTemplates\TemplateDirs\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}\/1" Value="ProjectExtender" Type="string">
+  <!--<Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\NewProjectTemplates\TemplateDirs\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}\/1" Value="ProjectExtender" Type="string">
     <Registry Name="SortPriority" Value="100" Type="integer" />
-  </Registry>
+  </Registry>-->
 
   <RegistryKey Root="HKLM" Key="Software\Hill30\ProjectExtender" >
     <RegistryValue Name="InstallDir" Type="string" Value="[INSTALLDIR2008]" />

@@ -51,7 +51,8 @@
     <Property Id="DEVENV_EXE_PATH2010">
       <RegistrySearch Id="RegSearch_DevenvExe_Path2010" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2010)\Setup\VS" Name="EnvironmentPath" Type="raw" />
     </Property>
-      <Property Id="VSIX_PATH" Value="C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE\vsixinstaller.exe">
+      <Property Id="VSIX_PATH">
+          <!--Value="C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE\vsixinstaller.exe"-->
           <!--<RegistrySearch Id="RegSearch_Env_Path2010" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2010)\Setup\VS" Name="EnvironmentDirectory" Type="raw" />-->
       </Property>
       <Condition Message="This application requires .NET Framework 3.5SP1. Please install the .NET Framework 3.5SP1 then run this installer again.">
@@ -68,45 +69,41 @@
       
       <Directory Id="ProgramFilesFolder" Name="PFiles">
         <Directory Id="HILL30FILES" Name="Hill30">
-          <Directory Id="INSTALLDIR2008" Name="ProjectExtender">
-            <Component Id="ProjectExtender2008Files" Guid="FB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
-              <RemoveFolder Id="RemoveMain2008" Directory="INSTALLDIR2008" On="uninstall" />
-              <File Id="ProjectExtender.dll" Name="ProjectExtender2008.dll" Source="lib\ProjectExtender2008.dll" DiskId="1" />
-              <File Id="Readme2008" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />
-              <RegistryValue Root="HKLM" Key="Software\Hill30\ProjectExtender" Name="InstallDir" Type="string" Value="[INSTALLDIR2008]" KeyPath="yes" />
-            </Component>
-         </Directory>
-        <Directory Id="INSTALLDIR2010">
-            <Component Id="ProjectExtender2010Files" Guid="AB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
-                <RemoveFolder Id="RemoveMain2010" Directory="INSTALLDIR2010" On="uninstall" />
-                <RemoveFolder Id="RemoveExtension" Property="EXTENSIONSHILL30FILES" On="uninstall" />
-                <File Id="Extender.vsix" Name="ProjectExtender2010.vsix" Source="lib\ProjectExtender2010.vsix" DiskId="1" />
-                <!--<File Id="ExtenderDLL" Name="ProjectExtender2010.dll" Source="lib\ProjectExtender2010.dll" DiskId="1" />
-                <File Id="ExtenderPKDEF" Name="ProjectExtender2010.pkgdef" Source="lib\ProjectExtender2010.pkgdef" DiskId="1" />
-                <File Id="Manifest" Name="extension.manifest" Source="lib\extension.vsixmanifest" DiskId="1" />
-                <File Id="Readme2010" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />-->
-                <RegistryKey Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Action="create"/>
-                <RegistryValue Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Name="11152079-c45f-4889-8203-11f9d15a7615,1.0" Type="string" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc\F# Project System Extender\1.0" KeyPath="yes"/>
-            </Component>
-
+            <Directory Id="INSTALLDIR2008" Name="ProjectExtender">
+                <Component Id="ProjectExtender2008Files" Guid="FB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
+                  <RemoveFolder Id="RemoveMain2008" Directory="INSTALLDIR2008" On="uninstall" />
+                  <File Id="ProjectExtender.dll" Name="ProjectExtender2008.dll" Source="lib\ProjectExtender2008.dll" DiskId="1" />
+                  <File Id="Readme2008" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />
+                  <RegistryValue Root="HKLM" Key="Software\Hill30\ProjectExtender" Name="InstallDir" Type="string" Value="[INSTALLDIR2008]" KeyPath="yes" />
+                </Component>
+                <Component Id="RegistryExtenderVSX2008" DiskId="1" Guid="3F720FC6-EC7C-44E2-BEE4-8130CE1B3F09">
+                    <?include ExtenderReg.wxi?>
+                </Component>
+            </Directory>
+            <Directory Id="INSTALLDIR2010">
+                <Component Id="ProjectExtender2010Files" Guid="AB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
+                    <RemoveFolder Id="RemoveMain2010" Directory="INSTALLDIR2010" On="uninstall" />
+                    <RemoveFolder Id="RemoveExtension" Property="EXTENSIONSHILL30FILES" On="uninstall" />
+                    <File Id="Extender.vsix" Name="ProjectExtender2010.vsix" Source="lib\ProjectExtender2010.vsix" DiskId="1" />
+                    <!--<File Id="ExtenderDLL" Name="ProjectExtender2010.dll" Source="lib\ProjectExtender2010.dll" DiskId="1" />
+                    <File Id="ExtenderPKDEF" Name="ProjectExtender2010.pkgdef" Source="lib\ProjectExtender2010.pkgdef" DiskId="1" />
+                    <File Id="Manifest" Name="extension.manifest" Source="lib\extension.vsixmanifest" DiskId="1" />
+                    <File Id="Readme2010" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />-->
+                    <RegistryKey Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Action="create"/>
+                    <RegistryValue Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Name="11152079-c45f-4889-8203-11f9d15a7615,1.0" Type="string" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc\F# Project System Extender\1.0" KeyPath="yes"/>
+                </Component>
+            </Directory>
         </Directory>
-
-        </Directory>
-        
-      </Directory>
-      
-      <Component Id="RegistryExtenderVSX2008" DiskId="1" Guid="3F720FC6-EC7C-44E2-BEE4-8130CE1B3F09">
-          <?include ExtenderReg.wxi?>
-      </Component>
-    </Directory>
-    <Feature Id="FeatureTree" Title ="F# Project extender" Level="1" Display ="expand">
-        <Feature Id="Extender2008" Title="Visual Studio 2008 integration" Level="0" Description="Package for VS 2008" ConfigurableDirectory="INSTALLDIR2008" AllowAdvertise="no">
+     </Directory>
+   </Directory>
+   <Feature Id="FeatureTree" Title ="F# Project extender" Level="1" Display ="expand" AllowAdvertise="no">
+        <Feature Id="Extender2008" Title="Visual Studio 2008 integration" Level="0" Description="Package for VS 2008" ConfigurableDirectory="INSTALLDIR2008" >
             <Condition Level="1"><![CDATA[ VS2008FOUND <> NULL ]]></Condition>
             <ComponentRef Id="ProjectExtender2008Files" />
             <ComponentRef Id="RegistryExtenderVSX2008" />
         </Feature>
 
-        <Feature Id="Extender2010" Title="Visual Studio 2010 integration" Level="0" Description="VS 2010 Extension" ConfigurableDirectory="INSTALLDIR2010" AllowAdvertise="no">
+        <Feature Id="Extender2010" Title="Visual Studio 2010 integration" Level="0" Description="VS 2010 Extension" ConfigurableDirectory="INSTALLDIR2010">
             <Condition Level="1"><![CDATA[ VS2010FOUND <> NULL ]]></Condition>
             <ComponentRef Id="ProjectExtender2010Files" />
         </Feature>
@@ -123,12 +120,14 @@
     <CustomAction Id="SetExtensionDir" Property="EXTENSIONHILL30FILES" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc"/>
     <CustomActionRef Id="WixFailWhenDeferred" />
     <CustomAction Id="CA_DeleteExtensionFiles" Directory = "INSTALLDIR2010" ExeCommand="&quot;cmd.exe&quot; /c rmdir /s /q &quot;[EXTENSIONHILL30FILES]\F# Project System Extender&quot;" Return="ignore"/>
+    <CustomAction  Id="SET_VSIX_PATH"  Property="VSIX_PATH" Value="[ENVDIR_2010]\vsixinstaller.exe"/>
     <InstallExecuteSequence>
       <RemoveExistingProducts After="InstallInitialize" />
-      <Custom Action="CA_DevenvSetup2008" Before="InstallFinalize" ><![CDATA[&Extender2008 = 3 OR &Extender2008 = 4]]></Custom>
-      <Custom Action="CA_RunVSIX2010"  Before="InstallFinalize"><![CDATA[&Extender2010 = 3 OR &Extender2010 = 4]]></Custom>
-      <Custom Action="SetExtensionDir" After="InstallInitialize"><![CDATA[REMOVE]]></Custom>
-      <Custom Action="CA_DeleteExtensionFiles" After="SetExtensionDir"><![CDATA[REMOVE]]></Custom>
+      <Custom Action="CA_DevenvSetup2008" Before="InstallFinalize" ><![CDATA[&Extender2008 = 3]]></Custom>
+      <Custom Action="SET_VSIX_PATH" Before="InstallFinalize"><![CDATA[&Extender2010 = 3]]></Custom>
+      <Custom Action="CA_RunVSIX2010"  After="SET_VSIX_PATH"><![CDATA[&Extender2010 = 3]]></Custom>
+      <Custom Action="SetExtensionDir" After="InstallInitialize"><![CDATA[&Extender2010 = 2]]></Custom>
+      <Custom Action="CA_DeleteExtensionFiles" After="SetExtensionDir"><![CDATA[&Extender2010 = 2]]></Custom>
       <!--<Custom Action="WixFailWhenDeferred" Before="InstallFinalize"><![CDATA[WIXFAILWHENDEFERRED=1]]></Custom>--> 
       <!--<Custom Action="UninstallDesignerFiles" After="InstallInitialize"><![CDATA[REMOVE]]></Custom>-->
       <!--<Custom Action="EditProjectExtenderPkgdef" After="InstallFinalize">

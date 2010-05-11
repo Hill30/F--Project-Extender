@@ -47,7 +47,7 @@ namespace FSharp.ProjectExtender
     [ProvideLoadKey("Standard", "1.0", "F# Project System Extender", "Hill30 Inc", 100)]
     // Provide the F# project extender project project factory. This is a flavored project and it does not
     // introduce any new templates
-    [ProvideProjectFactory(typeof(FSharp.ProjectExtender.Factory), "ProjectExtender", null, null, null, null)]
+    [ProvideProjectFactory(typeof(FSharp.ProjectExtender.Factory), "ProjectExtender", null, null, null, ".\\NullPath", LanguageVsTemplate = "FSharp")]
     // Provide object so it can be created through the ILocalRegistry interface - in this case the new property page
     [ProvideObject(typeof(FSharp.ProjectExtender.Page), RegisterUsing = RegistrationMethod.CodeBase)]
 
@@ -81,7 +81,7 @@ namespace FSharp.ProjectExtender
         }
 
         List<IDisposable> handlers = new List<IDisposable>();
-        private T RegisterHandler<T>(T handler) where T:IDisposable
+        private T RegisterHandler<T>(T handler) where T : IDisposable
         {
             handlers.Add(handler);
             return handler;
