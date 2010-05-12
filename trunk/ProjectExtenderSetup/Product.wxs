@@ -5,7 +5,7 @@
   <?define VisualStudioRegistryRoot2008 = "Software\Microsoft\VisualStudio\9.0" ?>
   <?define VisualStudioRegistryRoot2010 = "Software\Microsoft\VisualStudio\10.0" ?>
   <?define UpgradeCode="{EB7EA168-9F1A-45EF-8EDB-06AC4E4C69D6}"?>
-  <Product Id="FDEC07EB-0817-4B10-850C-3DDC05AAD540" Name="F# Project Extender $(var.ProductVersionTitle)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Hill30" UpgradeCode="$(var.UpgradeCode)">
+  <Product Id="BB091D95-0F0A-47C8-B4AE-6F1C3EEC79C4" Name="F# Project Extender $(var.ProductVersionTitle)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Hill30" UpgradeCode="$(var.UpgradeCode)">
     <Package InstallerVersion="200" Compressed="yes" />
     <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
     <Upgrade Id="$(var.UpgradeCode)">
@@ -80,7 +80,7 @@
                     <?include ExtenderReg.wxi?>
                 </Component>
             </Directory>
-            <Directory Id="INSTALLDIR2010">
+            <Directory Id="INSTALLDIR2010" Name="ProjectExtender">
                 <Component Id="ProjectExtender2010Files" Guid="AB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
                     <RemoveFolder Id="RemoveMain2010" Directory="INSTALLDIR2010" On="uninstall" />
                     <RemoveFolder Id="RemoveExtension" Property="EXTENSIONSHILL30FILES" On="uninstall" />
