@@ -73,11 +73,14 @@
                 <Component Id="ProjectExtender2008Files" Guid="FB80C8A8-63BE-4D5E-BACB-9FA941CD0C7C">
                   <RemoveFolder Id="RemoveMain2008" Directory="INSTALLDIR2008" On="uninstall" />
                   <File Id="ProjectExtender.dll" Name="ProjectExtender2008.dll" Source="lib\ProjectExtender2008.dll" DiskId="1" />
-                  <File Id="Readme2008" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />
+                  <!--<File Id="Readme2008" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />-->
                   <RegistryValue Root="HKLM" Key="Software\Hill30\ProjectExtender" Name="InstallDir" Type="string" Value="[INSTALLDIR2008]" KeyPath="yes" />
                 </Component>
                 <Component Id="RegistryExtenderVSX2008" DiskId="1" Guid="3F720FC6-EC7C-44E2-BEE4-8130CE1B3F09">
                     <?include ExtenderReg.wxi?>
+                </Component>
+                <Component Id="Readme" Guid="51DFFFC8-E143-4EE8-9D6B-A333BD401531" DiskId="1">
+                    <File Id="Readme" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />
                 </Component>
             </Directory>
             <Directory Id="INSTALLDIR2010" Name="ProjectExtender">
@@ -87,8 +90,8 @@
                     <File Id="Extender.vsix" Name="ProjectExtender2010.vsix" Source="lib\ProjectExtender2010.vsix" DiskId="1" />
                     <!--<File Id="ExtenderDLL" Name="ProjectExtender2010.dll" Source="lib\ProjectExtender2010.dll" DiskId="1" />
                     <File Id="ExtenderPKDEF" Name="ProjectExtender2010.pkgdef" Source="lib\ProjectExtender2010.pkgdef" DiskId="1" />
-                    <File Id="Manifest" Name="extension.manifest" Source="lib\extension.vsixmanifest" DiskId="1" />
-                    <File Id="Readme2010" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />-->
+                    <File Id="Manifest" Name="extension.manifest" Source="lib\extension.vsixmanifest" DiskId="1" />-->
+                    <!--<File Id="Readme2010" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />-->
                     <RegistryKey Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Action="create"/>
                     <RegistryValue Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Name="11152079-c45f-4889-8203-11f9d15a7615,1.0" Type="string" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc\F# Project System Extender\1.0" KeyPath="yes"/>
                 </Component>
@@ -107,6 +110,9 @@
             <Condition Level="1"><![CDATA[ VS2010FOUND <> NULL ]]></Condition>
             <ComponentRef Id="ProjectExtender2010Files" />
         </Feature>
+       <Feature Id="Doc" Title="ReadMe" Description="Contains General description of the product" Absent="disallow" AllowAdvertise="no" Level="1" Display="hidden">
+           <ComponentRef Id="Readme"/>
+       </Feature>
     </Feature>
 
     <!--VS2010 commented-->
