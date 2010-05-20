@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio;
@@ -16,13 +18,21 @@ namespace FSharp.ProjectExtender
 
         public static readonly IVsTrackProjectDocuments2 documentTracker = (IVsTrackProjectDocuments2)Package.GetGlobalService(typeof(SVsTrackProjectDocuments));
 
-        public static readonly IVsUIHierarchyWindow solutionExplorer = getSolutionExplorer();
 
         public static readonly IVsUIShell shell = (IVsUIShell)Package.GetGlobalService(typeof(SVsUIShell));
 
-        public static readonly IVsSolution solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
+        public static  IVsSolution solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
 
         public static readonly EnvDTE.DTE dte = (EnvDTE.DTE)Package.GetGlobalService(typeof(SDTE));
+
+        public static IVsUIHierarchyWindow SolutionExplorer
+        {
+            get
+            {
+                return getSolutionExplorer();
+            }
+        }
+
 
         /// <summary>
         /// retrieves the IVsProject interface for currentll selected project
@@ -166,15 +176,15 @@ namespace FSharp.ProjectExtender
         private static IVsUIHierarchyWindow getSolutionExplorer()
         {
             IVsUIShell shell = Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell;
-
             object pvar = null;
             IVsWindowFrame frame = null;
             Guid persistenceSlot = new Guid(EnvDTE.Constants.vsWindowKindSolutionExplorer);
-
-            ErrorHandler.ThrowOnFailure(shell.FindToolWindow(0, ref persistenceSlot, out frame));
-            ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out pvar));
-
+            if (ErrorHandler.Succeeded(shell.FindToolWindow(0, ref persistenceSlot, out frame)))
+            {
+                ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out pvar));
+            }
             return (IVsUIHierarchyWindow)pvar;
+
         }
 
     }

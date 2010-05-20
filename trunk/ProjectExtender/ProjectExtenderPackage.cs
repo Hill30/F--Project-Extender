@@ -37,7 +37,12 @@ namespace FSharp.ProjectExtender
     [DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0")]
     // This attribute is used to register the informations needed to show the this package
     // in the Help/About dialog of Visual Studio.
+#if VS2008  
     [InstalledProductRegistration(false, "#110", "#112", "1.0", IconResourceID = 400)]
+#endif
+#if VS2010  
+    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+#endif
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource(1000, 1)]
     // In order be loaded inside Visual Studio in a machine that has not the VS SDK installed, 

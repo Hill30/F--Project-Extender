@@ -4,7 +4,7 @@
         <Name>F# Project System Extender</Name>
         <Author>Hill30 Inc</Author>
         <Version>1.0</Version>
-        <Description xml:space="preserve">Information about my package</Description>
+        <Description xml:space="preserve">Extends F# project system</Description>
         <Locale>1033</Locale>
         <InstalledByMsi>false</InstalledByMsi>
         <SupportedProducts>

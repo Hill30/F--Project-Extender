@@ -207,8 +207,10 @@ namespace FSharp.ProjectExtender
             uint lastItemId = projectProxy.InvalidateParentItems(itemIds);
 
             if (lastItemId != VSConstants.VSITEMID_NIL)
-                GlobalServices.solutionExplorer.ExpandItem(this, lastItemId, EXPANDFLAGS.EXPF_SelectItem);
-
+            {
+                if (GlobalServices.SolutionExplorer != null)
+                    GlobalServices.SolutionExplorer.ExpandItem(this, lastItemId, EXPANDFLAGS.EXPF_SelectItem);
+            }
         }
 
         private void InvalidateParentItems(string[] oldFileNames, string[] newFileNames)
@@ -243,14 +245,19 @@ namespace FSharp.ProjectExtender
             projectProxy.RefreshSolutionExplorer();
 
             bool first = true;
-            foreach (var node in itemList.RemapNodes(nodes))
-                if (first)
-                {
-                    GlobalServices.solutionExplorer.ExpandItem(this, node.ItemId, EXPANDFLAGS.EXPF_SelectItem);
-                    first = false;
-                }
-                else
-                    GlobalServices.solutionExplorer.ExpandItem(this, node.ItemId, EXPANDFLAGS.EXPF_AddSelectItem);
+            IVsUIHierarchyWindow explorer = GlobalServices.SolutionExplorer;
+            if (explorer != null)
+            {
+                foreach (var node in itemList.RemapNodes(nodes))
+                    if (first)
+                    {
+                        explorer.ExpandItem(this, node.ItemId, EXPANDFLAGS.EXPF_SelectItem);
+                        first = false;
+                    }
+                    else
+                        explorer.ExpandItem(this, node.ItemId, EXPANDFLAGS.EXPF_AddSelectItem);
+            }
+        
         }
 
 
