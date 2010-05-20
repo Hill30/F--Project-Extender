@@ -279,11 +279,11 @@ namespace FSharp.ProjectExtender.Project
 
         int IVsHierarchyEvents.OnItemAdded(uint itemidParent, uint itemidSiblingPrev, uint itemidAdded)
         {
-            // for some reason during rename OnItemAdded is called twice - let us ignore the second one
-            if (itemMap.ContainsKey(itemidAdded))
-                return VSConstants.S_OK;
-
+            // for some reason during rename OnItemAdded is called twice - let us delete the first one
             ItemNode n;
+            if (itemMap.TryGetValue(itemidAdded, out n))
+                n.Delete();
+
             if (!itemMap.TryGetValue(itemidParent, out n))
                 return VSConstants.E_INVALIDARG;
             n.CreatenMapChildNode(itemidAdded);
@@ -462,7 +462,6 @@ namespace FSharp.ProjectExtender.Project
         {
             node.Delete();
             int result = Project.ProjectProxy.AddFileItem(node.Parent.ItemId, node.Path);
-            Project.RefreshSolutionExplorer(new ItemNode[] { node });
             return result;
         }
 

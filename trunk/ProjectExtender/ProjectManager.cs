@@ -236,7 +236,7 @@ namespace FSharp.ProjectExtender
         /// </summary>
         /// <param name="nodes">A list of nodes which were originally selected</param>
         /// <remarks>
-        /// Refreshing the tree cancels the selection the nodes list is used to restore the
+        /// Refreshing the tree cancels the selection, the nodes list is used to restore the
         /// selection. The items on the list could have been changed/ recreated as a side
         /// effect of the operation, so the list of the nodes is re-mapped
         /// </remarks>
@@ -374,6 +374,7 @@ namespace FSharp.ProjectExtender
 
         public int OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
+	        InvalidateParentItems(new string[rgpszMkDocuments.Length], rgpszMkDocuments);
             return VSConstants.S_OK;
         }
 
