@@ -58,6 +58,6 @@
 	</Target>
 	-->
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(ProjectDir)$(OutDir)ProjectExtenderSetup.msi" "C:\Documents and Settings\avlasova\My Documents\Share"</PostBuildEvent>
+    
   </PropertyGroup>
 </Project>
