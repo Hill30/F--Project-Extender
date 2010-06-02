@@ -310,7 +310,13 @@ namespace FSharp.ProjectExtender.Project
         int IVsHierarchyEvents.OnPropertyChanged(uint itemid, int propid, uint flags)
         {
 
-            if (propid == (int)__VSHPROPID.VSHPROPID_Caption)
+            if (propid == (int)__VSHPROPID.VSHPROPID_Caption 
+                // if this is the root - there is no need to remap/invalidate the node (and it is not possible anyway)
+#if VS2008
+                && itemid != VSConstants.VSITEMID_ROOT)
+#elif VS2010
+                && itemid != (uint)VSConstants.VSITEMID.Root)
+#endif
             {
                 ItemNode n;
                 if (!itemMap.TryGetValue(itemid, out n))

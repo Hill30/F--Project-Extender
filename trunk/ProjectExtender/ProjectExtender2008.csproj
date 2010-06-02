@@ -108,7 +108,6 @@
     <Compile Include="Project\Excluded\ExcludedNode.cs" />
     <Compile Include="MSBuildUtilities\BuildProjectProxy.cs" />
     <Compile Include="Project\ShadowFileNode.cs" />
-    <Compile Include="Project\RootItemNode.cs" />
     <Compile Include="Project\ShadowFolderNode.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ProjectExtenderPackage.cs" />
