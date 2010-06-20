@@ -18,12 +18,13 @@ namespace FSharp.ProjectExtender
 
         public static readonly IVsTrackProjectDocuments2 documentTracker = (IVsTrackProjectDocuments2)Package.GetGlobalService(typeof(SVsTrackProjectDocuments));
 
-
         public static readonly IVsUIShell shell = (IVsUIShell)Package.GetGlobalService(typeof(SVsUIShell));
 
         public static  IVsSolution solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
 
         public static readonly EnvDTE.DTE dte = (EnvDTE.DTE)Package.GetGlobalService(typeof(SDTE));
+
+        public static readonly IVsRunningDocumentTable RDT = (IVsRunningDocumentTable)Package.GetGlobalService(typeof(IVsRunningDocumentTable));
 
         public static IVsUIHierarchyWindow SolutionExplorer
         {

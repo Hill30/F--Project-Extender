@@ -13,10 +13,8 @@ namespace FSharp.ProjectExtender.Project.Excluded
     public class ExcludedFolderNode : ExcludedNode
     {
         public ExcludedFolderNode(ItemList items, ItemNode parent, string path)
-            : base(items, parent, Constants.ItemNodeType.ExcludedFile, path)
-        {
-            SetShowAll(true);
-        }
+            : base(items, parent, Constants.ItemNodeType.ExcludedFolder, path)
+        { }
 
         internal override void SetShowAll(bool show_all)
         {
@@ -40,9 +38,9 @@ namespace FSharp.ProjectExtender.Project.Excluded
                 }
                 foreach (var child in new List<ItemNode>(this))
                 {
-                    if (child is ExcludedFileNode && !File.Exists(child.Path))
+                    if (child.Type == Constants.ItemNodeType.ExcludedFile && !File.Exists(child.Path))
                         child.Delete();
-                    if (child is ExcludedFolderNode && !Directory.Exists(child.Path))
+                    if (child.Type == Constants.ItemNodeType.ExcludedFolder && !Directory.Exists(child.Path))
                         child.Delete();
                 }
                 MapChildren();
@@ -59,11 +57,6 @@ namespace FSharp.ProjectExtender.Project.Excluded
         protected override int ImageIndex
         {
             get { return (int)Constants.ImageName.ExcludedFolder; }
-        }
-
-        protected override int IncludeItem()
-        {
-            return Items.IncludeFolderItem(this);
         }
 
         internal override int GetProperty(int propId, out object property)
@@ -87,6 +80,21 @@ namespace FSharp.ProjectExtender.Project.Excluded
                     break;
             }
             return base.GetProperty(propId, out property);
+        }
+
+        protected override int Exec(Guid cmdGroup, uint cmdID)
+        {
+            if (cmdGroup.Equals(Constants.guidStandardCommandSet2K) && cmdID == (uint)VSConstants.VSStd2KCmdID.INCLUDEINPROJECT)
+                return IncludeItem();
+
+            return VSConstants.S_OK;
+        }
+
+        private int IncludeItem()
+        {
+            var result = Items.IncludeFolderItem(this);
+            Items.Project.RefreshSolutionExplorer(new ItemNode[] { Items[Path] });
+            return result;
         }
     }
 }

@@ -310,7 +310,7 @@ namespace FSharp.ProjectExtender.Project
         int IVsHierarchyEvents.OnPropertyChanged(uint itemid, int propid, uint flags)
         {
 
-            if (propid == (int)__VSHPROPID.VSHPROPID_Caption 
+            if (propid == (int)__VSHPROPID.VSHPROPID_Caption
                 // if this is the root - there is no need to remap/invalidate the node (and it is not possible anyway)
 #if VS2008
                 && itemid != VSConstants.VSITEMID_ROOT)
@@ -466,9 +466,34 @@ namespace FSharp.ProjectExtender.Project
         /// <returns></returns>
         internal int IncludeFileItem(ItemNode node)
         {
-            node.Delete();
-            int result = Project.ProjectProxy.AddFileItem(node.Parent.ItemId, node.Path);
-            return result;
+            var path = node.Path;
+            var parent = ensure_included(node.Parent);
+            // It is necessary to re-acquire the node, because the ensure_included might'of recreated it
+            this[path].Delete();
+            return Project.ProjectProxy.AddFileItem(parent, path);
+        }
+
+        private uint ensure_included(ItemNode node)
+        {
+            if (node.Type == Constants.ItemNodeType.ExcludedFolder)
+            {
+                // 1. save the path for future use after the node is deleted. The node will still be around
+                //      even though it is deleted, so I could've accessed it as node.Path when I would have needed it
+                //      but it feels weird - accessing object fields after it has been deleted
+                var path = node.Path;
+                // 2. make sure the parent is ok
+                ensure_included(node.Parent);
+                // 3. delete the node with all its children. It is necessary to re-acquire the node, because
+                //      the ensure_included might'of recreated it
+                this[path].Delete();
+                // 4. re-add the node as the 'real' one
+                var result = Project.ProjectProxy.AddFolderItem(path);
+                // 5. re-add children nodes
+                this[path].SetShowAll(true);
+                return result;
+            }
+            else
+                return node.ItemId;
         }
 
         /// <summary>
@@ -478,13 +503,20 @@ namespace FSharp.ProjectExtender.Project
         /// <returns></returns>
         internal int IncludeFolderItem(ItemNode node)
         {
-            var files = new List<string>();
-            foreach (var child in node)
+            var path = node.Path;
+            
+            ensure_included(node);
+            
+            // It is necessary to re-acquire the node, because the ensure_included recreated it
+            var folder_node = this[path];
+
+            foreach (var child in new List<ItemNode>(folder_node))
             {
                 switch (child.Type)
                 {
                     case Constants.ItemNodeType.ExcludedFile:
-                        files.Add(child.Path);
+                        child.Delete();
+                        ErrorHandler.ThrowOnFailure(Project.ProjectProxy.AddFileItem(folder_node.ItemId, child.Path));
                         break;
                     case Constants.ItemNodeType.ExcludedFolder:
                         IncludeFolderItem(child);
@@ -493,11 +525,7 @@ namespace FSharp.ProjectExtender.Project
                         break;
                 }
             }
-            node.Delete();
-            uint parent = Project.ProjectProxy.AddFolderItem(node.Path);
-            foreach (var file in files)
-                ErrorHandler.ThrowOnFailure(Project.ProjectProxy.AddFileItem(parent, file));
-            Project.RefreshSolutionExplorer(new ItemNode[] { node });
+
             return VSConstants.S_OK;
         }
 

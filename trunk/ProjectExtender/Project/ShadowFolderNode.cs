@@ -46,9 +46,9 @@ namespace FSharp.ProjectExtender.Project
                 }
                 foreach (var child in new List<ItemNode>(this))
                 {
-                    if (child is ExcludedFileNode && !File.Exists(child.Path))
+                    if (child.Type == Constants.ItemNodeType.ExcludedFile && !File.Exists(child.Path))
                         child.Delete();
-                    if (child is ExcludedFolderNode && !Directory.Exists(child.Path))
+                    if (child.Type == Constants.ItemNodeType.ExcludedFolder && !Directory.Exists(child.Path))
                         child.Delete();
                 }
                 MapChildren();

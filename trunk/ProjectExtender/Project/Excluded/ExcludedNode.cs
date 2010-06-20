@@ -55,14 +55,21 @@ namespace FSharp.ProjectExtender.Project.Excluded
 
         protected abstract int ImageIndex { get; }
 
+        protected virtual bool QueryStatus(Guid cmdGroup, uint cmdID)
+        {
+            return false;
+        }
+
+        protected virtual int Exec(Guid cmdGroup, uint cmdID)
+        {
+            return VSConstants.S_OK;
+        }
+
         #region IOleCommandTarget Members
 
         public int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            if (pguidCmdGroup.Equals(Constants.guidStandardCommandSet2K) && nCmdID == (uint)VSConstants.VSStd2KCmdID.INCLUDEINPROJECT)
-                return IncludeItem();
-
-            return VSConstants.S_OK;
+            return Exec(pguidCmdGroup, nCmdID);
         }
 
         public int QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
@@ -70,12 +77,13 @@ namespace FSharp.ProjectExtender.Project.Excluded
             if (pguidCmdGroup.Equals(Constants.guidStandardCommandSet2K) && prgCmds[0].cmdID == (uint)VSConstants.VSStd2KCmdID.INCLUDEINPROJECT)
                 prgCmds[0].cmdf = (uint)OLECMDF.OLECMDF_SUPPORTED | (uint)OLECMDF.OLECMDF_ENABLED;
 
+            if (QueryStatus(pguidCmdGroup, prgCmds[0].cmdID))
+                prgCmds[0].cmdf = (uint)OLECMDF.OLECMDF_SUPPORTED | (uint)OLECMDF.OLECMDF_ENABLED;
+
             return VSConstants.S_OK;
         }
 
         #endregion
-
-        protected abstract int IncludeItem();
 
     }
 }

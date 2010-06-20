@@ -99,6 +99,9 @@ namespace FSharp.ProjectExtender.Project
                 child.Delete();
         }
 
+        /// <summary>
+        /// Adjusts the position of the node in the children map after node rename
+        /// </summary>
         internal void Remap()
         {
             Parent.children.RemoveAt(Parent.childrenMap[ItemId]);
