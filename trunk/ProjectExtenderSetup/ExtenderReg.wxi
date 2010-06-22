@@ -8,10 +8,10 @@
     <Registry Name="LogoID" Value="#400" Type="string" />
   </Registry>
 
-  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\Packages\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" Value="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender2008, Version=0.9.1.0, Culture=neutral, PublicKeyToken=null" Type="string">
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\Packages\{5a8f5a4d-d1eb-403e-85b3-63df607fa07c}" Value="FSharp.ProjectExtender.ProjectExtenderPackage, ProjectExtender2008, Version=0.9.3.0, Culture=neutral, PublicKeyToken=null" Type="string">
     <Registry Name="InprocServer32" Value="[SystemFolder]mscoree.dll" Type="string" />
     <Registry Name="Class" Value="FSharp.ProjectExtender.ProjectExtenderPackage" Type="string" />
-    <Registry Name="Assembly" Value="ProjectExtender2008, Version=0.9.1.0, Culture=neutral, PublicKeyToken=null" Type="string" />
+    <Registry Name="Assembly" Value="ProjectExtender2008, Version=0.9.3.0, Culture=neutral, PublicKeyToken=null" Type="string" />
     <Registry Name="CodeBase" Value="[INSTALLDIR2008]ProjectExtender2008.dll" Type="string" />
     <Registry Name="ID" Value="100" Type="integer" />
     <Registry Name="MinEdition" Value="Standard" Type="string" />
