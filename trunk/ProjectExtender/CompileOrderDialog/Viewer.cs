@@ -38,7 +38,7 @@ namespace FSharp.ProjectExtender
                 if (element.Type != "Compile")
                     continue;
                 TreeNode compileItem = new TreeNode(element.Include);
-                compileItem.Tag = project.Items[project.ProjectDir + "\\" + element.Include];
+                compileItem.Tag = project.Items[project.ToCanonical(element.Include)];
                 //compileItem.ContextMenuStrip = compileItemMenu;
                 BuildDependencies(compileItem);
                 CompileItems.Nodes.Add(compileItem);
@@ -48,7 +48,7 @@ namespace FSharp.ProjectExtender
         private void BuildDependencies(TreeNode node)
         {
             node.Nodes.Clear();
-            string dependencies = ((ShadowFileNode)node.Tag).GetDependencies(); 
+            string dependencies = ((ShadowFileNode)node.Tag).GetDependencies();
             if (dependencies != null)
                 foreach (var d in dependencies.Split(','))
                     if (d != "")

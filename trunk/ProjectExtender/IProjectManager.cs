@@ -18,5 +18,6 @@ namespace FSharp.ProjectExtender
         void FlipShowAll();
         void Refresh();
         void FixupProject();
+        string ToCanonical(string include);
     }
 }

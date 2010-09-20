@@ -268,7 +268,6 @@ namespace FSharp.ProjectExtender
         {
             get { return projectProxy; }
         }
-
         /// <summary>
         /// In response to click on the Show All Files button changes the state of the button
         /// </summary>
@@ -295,7 +294,11 @@ namespace FSharp.ProjectExtender
         {
             projectProxy.FixupProject();
         }
-
+        public string ToCanonical(string include)
+        {
+            string key = projectProxy.IncludeToCanonical.Keys.First(n => include.EndsWith(n));
+            return (!String.IsNullOrEmpty(key)) ? projectProxy.IncludeToCanonical[key] : null;
+        }
         #endregion
 
         #region IOleCommandTarget Members
@@ -374,7 +377,7 @@ namespace FSharp.ProjectExtender
 
         public int OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
-	        InvalidateParentItems(new string[rgpszMkDocuments.Length], rgpszMkDocuments);
+            InvalidateParentItems(new string[rgpszMkDocuments.Length], rgpszMkDocuments);
             return VSConstants.S_OK;
         }
 

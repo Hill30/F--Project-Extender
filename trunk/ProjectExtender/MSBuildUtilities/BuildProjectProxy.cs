@@ -31,10 +31,11 @@ namespace FSharp.ProjectExtender.Project
         }
         
         ProjectNode projectNode;
+        public Dictionary<string, string> IncludeToCanonical { get; set; }
         public BuildProjectProxy(IVsProject innerProject)
         {
             projectNode = GlobalServices.getFSharpProjectNode(innerProject);
-
+            IncludeToCanonical = new Dictionary<string, string>();
             var item_list = new List<IBuildItem>();
             var fixup_list = new List<Tuple<IBuildItem, int, int>>();
 
@@ -132,7 +133,6 @@ namespace FSharp.ProjectExtender.Project
             var build_item_property = itemNode.GetType().GetProperty("Item", BindingFlags.Instance | BindingFlags.Public);
             return new BuildItemProxy(build_item_property.GetValue(itemNode, new object[] { }));
         }
-
         /// <summary>
         /// Adjusts the positions of build elements to ensure the project can be loaded by the FSharp project system
         /// </summary>
@@ -216,7 +216,6 @@ namespace FSharp.ProjectExtender.Project
             projectNode.BuildProject.Save();
 #endif
         }
-
         public IEnumerator<IBuildItem> GetEnumerator()
         {
 #if VS2008
