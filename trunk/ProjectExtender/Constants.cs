@@ -33,6 +33,7 @@ namespace FSharp.ProjectExtender
         public const uint cmdidNewFolder = 0xf5;
         
         public const string moveByTag = "move-by";
+        public const string link = "Link";
 
         public enum ImageName
         {

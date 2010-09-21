@@ -151,7 +151,8 @@ namespace FSharp.ProjectExtender.Project
                 item.RemoveMetadata(Constants.moveByTag);
                 itemList.Add(item);
                 count++;
-                string path = Path.GetDirectoryName(item.Include);
+                string link_location = item.GetMetadata(Constants.link);
+                string path = (String.IsNullOrEmpty(link_location)) ? Path.GetDirectoryName(item.Include) : Path.GetDirectoryName(link_location);
                 //if the item is root level item - think as if it is a folder
                 if (String.Compare(path, "") == 0)
                     path = item.Include;
