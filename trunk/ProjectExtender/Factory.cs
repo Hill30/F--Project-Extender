@@ -77,7 +77,7 @@ namespace FSharp.ProjectExtender
         }
 
 
-        private const string fixer_warning = "Project {0} ({1}) seems to be a corrupted F# Project Extender project. Do you want F# Project Extender to fix it?";
+        private const string FixerWarning = "Project {0} ({1}) seems to be a corrupted F# Project Extender project. Do you want F# Project Extender to fix it?";
         private void ValidateNReload(IVsHierarchy project)
         {
             object value;
@@ -88,11 +88,11 @@ namespace FSharp.ProjectExtender
             var fixer = new ProjectFixerXml(projectFile);
             if (fixer.IsExtenderProject && fixer.NeedsFixing)
             {
-                Guid guid = Guid.Empty;
+                var guid = Guid.Empty;
                 int result;
                 ErrorHandler.ThrowOnFailure(GlobalServices.Shell.ShowMessageBox(0, ref guid,
                     null,
-                    String.Format(fixer_warning, name, projectFile),
+                    String.Format(FixerWarning, name, projectFile),
                     null,
                     0,
                     OLEMSGBUTTON.OLEMSGBUTTON_OKCANCEL,
