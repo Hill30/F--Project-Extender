@@ -142,7 +142,9 @@
     <Compile Include="MSBuildUtilities\BuildItemProxy2010.cs" />
     <Compile Include="MSBuildUtilities\BuildProjectProxy.cs" />
     <Compile Include="MSBuildUtilities\IBuildItem.cs" />
+    <Compile Include="MSBuildUtilities\ProjectFixer\ProjectFixerXML.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="MSBuildUtilities\ProjectFixer\ProjectFixerBase.cs" />
     <Compile Include="ProjectManager.cs" />
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />

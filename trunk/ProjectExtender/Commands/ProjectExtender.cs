@@ -46,7 +46,7 @@ namespace FSharp.ProjectExtender.Commands
             {
                 Guid guid = Guid.Empty;
                 int result;
-                ErrorHandler.ThrowOnFailure(GlobalServices.shell.ShowMessageBox(0, ref guid,
+                ErrorHandler.ThrowOnFailure(GlobalServices.Shell.ShowMessageBox(0, ref guid,
                     null,
                     disable_warning,
                     null,
@@ -82,10 +82,10 @@ namespace FSharp.ProjectExtender.Commands
             project.SetProjectFileDirty(true);
 
             // Unload the project - also saves the modifications
-            ErrorHandler.ThrowOnFailure(GlobalServices.solution.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, project, 0));
+            ErrorHandler.ThrowOnFailure(GlobalServices.Solution.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, project, 0));
 
             // Reload the project
-            GlobalServices.dte.ExecuteCommand("Project.ReloadProject", "");
+            GlobalServices.DTE.ExecuteCommand("Project.ReloadProject", "");
         }
 
         private static string get_ProjectTypeGuids(ProjectNode project)

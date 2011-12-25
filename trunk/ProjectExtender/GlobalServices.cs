@@ -14,15 +14,15 @@ namespace FSharp.ProjectExtender
 {
     static class GlobalServices
     {
-        public static readonly IVsMonitorSelection selectionMonitor = (IVsMonitorSelection)Package.GetGlobalService(typeof(SVsShellMonitorSelection));
+        public static readonly IVsMonitorSelection SelectionMonitor = (IVsMonitorSelection)Package.GetGlobalService(typeof(SVsShellMonitorSelection));
 
-        public static readonly IVsTrackProjectDocuments2 documentTracker = (IVsTrackProjectDocuments2)Package.GetGlobalService(typeof(SVsTrackProjectDocuments));
+        public static readonly IVsTrackProjectDocuments2 DocumentTracker = (IVsTrackProjectDocuments2)Package.GetGlobalService(typeof(SVsTrackProjectDocuments));
 
-        public static readonly IVsUIShell shell = (IVsUIShell)Package.GetGlobalService(typeof(SVsUIShell));
+        public static readonly IVsUIShell Shell = (IVsUIShell)Package.GetGlobalService(typeof(SVsUIShell));
 
-        public static  IVsSolution solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
+        public static readonly IVsSolution Solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
 
-        public static readonly EnvDTE.DTE dte = (EnvDTE.DTE)Package.GetGlobalService(typeof(SDTE));
+        public static readonly EnvDTE.DTE DTE = (EnvDTE.DTE)Package.GetGlobalService(typeof(SDTE));
 
         public static readonly IVsRunningDocumentTable RDT = (IVsRunningDocumentTable)Package.GetGlobalService(typeof(IVsRunningDocumentTable));
 
@@ -166,7 +166,7 @@ namespace FSharp.ProjectExtender
         private static IVsTrackSelectionEx get_selectionTracker()
         {
             IVsTrackSelectionEx result;
-            ErrorHandler.ThrowOnFailure(((IVsMonitorSelection2)selectionMonitor).GetEmptySelectionContext(out result));
+            ErrorHandler.ThrowOnFailure(((IVsMonitorSelection2)SelectionMonitor).GetEmptySelectionContext(out result));
             return result;
         }
 

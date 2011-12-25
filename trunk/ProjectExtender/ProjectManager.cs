@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using FSharp.ProjectExtender.MSBuildUtilities;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Flavor;
 using Microsoft.VisualStudio;
@@ -69,7 +70,7 @@ namespace FSharp.ProjectExtender
             projectProxy = new BuildProjectProxy(innerProject);
             itemList = new ItemList(this);
             hierarchy_event_cookie = AdviseHierarchyEvents(itemList);
-            ErrorHandler.ThrowOnFailure(GlobalServices.documentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));
+            ErrorHandler.ThrowOnFailure(GlobalServices.DocumentTracker.AdviseTrackProjectDocumentsEvents(this, out document_tracker_cookie));
         }
 
         /// <summary>
@@ -172,7 +173,7 @@ namespace FSharp.ProjectExtender
             if (hierarchy_event_cookie != (uint)ShellConstants.VSCOOKIE_NIL)
                 UnadviseHierarchyEvents(hierarchy_event_cookie);
             if (document_tracker_cookie != (uint)ShellConstants.VSCOOKIE_NIL)
-                GlobalServices.documentTracker.UnadviseTrackProjectDocumentsEvents(document_tracker_cookie);
+                GlobalServices.DocumentTracker.UnadviseTrackProjectDocumentsEvents(document_tracker_cookie);
             base.Close();
         }
 

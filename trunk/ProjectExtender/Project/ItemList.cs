@@ -257,7 +257,7 @@ namespace FSharp.ProjectExtender.Project
             string solution_directory;
             string solution_file;
             string solution_options_file;
-            GlobalServices.solution.GetSolutionInfo(out solution_directory, out solution_file, out solution_options_file);
+            GlobalServices.Solution.GetSolutionInfo(out solution_directory, out solution_file, out solution_options_file);
             if (file == solution_file)
                 return true;
             if (file == solution_options_file)
@@ -345,7 +345,7 @@ namespace FSharp.ProjectExtender.Project
                 // If the selection spans multiple hierachies, hierarchyPtr is Zero
                 uint itemid;
                 IVsMultiItemSelect multiItemSelect = null;
-                ErrorHandler.ThrowOnFailure(GlobalServices.selectionMonitor.GetCurrentSelection(out hierarchyPtr, out itemid, out multiItemSelect, out selectionContainer));
+                ErrorHandler.ThrowOnFailure(GlobalServices.SelectionMonitor.GetCurrentSelection(out hierarchyPtr, out itemid, out multiItemSelect, out selectionContainer));
                 // We only care if there are one ore more nodes selected in the tree
                 if (itemid != VSConstants.VSITEMID_NIL && hierarchyPtr != IntPtr.Zero)
                 {
@@ -451,7 +451,7 @@ namespace FSharp.ProjectExtender.Project
                     pnts[0].x = x;
                     pnts[0].y = y;
                     Guid menu = VsMenus.guidSHLMainMenu;// Constants.guidProjectExtenderCmdSet;
-                    result = GlobalServices.shell.ShowContextMenu(0, ref menu, VsMenus.IDM_VS_CTXT_ITEMNODE, pnts,
+                    result = GlobalServices.Shell.ShowContextMenu(0, ref menu, VsMenus.IDM_VS_CTXT_ITEMNODE, pnts,
                         (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)nodes[0]);
                     return true;
                 default:
