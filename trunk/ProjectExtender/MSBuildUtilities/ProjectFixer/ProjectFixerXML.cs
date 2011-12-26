@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using FSharp.ProjectExtender.Project;
 
@@ -18,17 +16,9 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
             this.path = path;
             projectFile.PreserveWhitespace = true;
             projectFile.Load(path);
-            projectFile.NodeRemoved += ProjectFileChanged;
-            projectFile.NodeInserted += ProjectFileChanged;
-            projectFile.NodeChanged += ProjectFileChanged;
             nsmgr = new XmlNamespaceManager(projectFile.NameTable);
             if (projectFile.DocumentElement != null) 
                 nsmgr.AddNamespace("x", projectFile.DocumentElement.NamespaceURI);
-        }
-
-        void ProjectFileChanged(object sender, XmlNodeChangedEventArgs e)
-        {
-            needsFixing = true;
         }
 
         public bool IsExtenderProject
@@ -54,10 +44,12 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
 
         class XmlItem : IBuildItem
         {
-            private readonly XmlNode node;
+            private readonly ProjectFixerXml parent;
+            private readonly XmlElement node;
 
-            public XmlItem(XmlNode node)
+            public XmlItem(ProjectFixerXml parent, XmlElement node)
             {
+                this.parent = parent;
                 this.node = node;
             }
 
@@ -67,8 +59,6 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
             {
                 get
                 {
-                    if (node.Attributes == null)
-                        return null;
                     var include = node.Attributes["Include"];
                     return include == null ? null : include.InnerText;
                 }
@@ -86,8 +76,11 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
                 var targetParent = t.node.ParentNode;
                 var mylocation = node.PreviousSibling;
                 var myParent = node.ParentNode;
+// ReSharper disable PossibleNullReferenceException
                 myParent.InsertAfter(t.node, mylocation);
                 targetParent.InsertAfter(node, targetLocation);
+// ReSharper restore PossibleNullReferenceException
+                parent.needsFixing = true;
             }
 
             public string GetMetadata(string name)
@@ -110,7 +103,9 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
                 var meta = node[name];
                 if (meta == null)
                 {
+// ReSharper disable PossibleNullReferenceException
                     meta = node.OwnerDocument.CreateElement(name, node.NamespaceURI);
+// ReSharper restore PossibleNullReferenceException
                     node.AppendChild(meta);
                 }
                 meta.InnerXml = value;
@@ -121,10 +116,12 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
 
         public override IEnumerator<IBuildItem> GetEnumerator()
         {
-// ReSharper disable AssignNullToNotNullAttribute
-            foreach (var node in projectFile.SelectNodes("x:Project/x:ItemGroup/x:Compile|x:Project/x:ItemGroup/x:None|x:Project/x:ItemGroup/x:Content", nsmgr).Cast<XmlNode>())
-// ReSharper restore AssignNullToNotNullAttribute
-                yield return new XmlItem(node);
+// ReSharper disable LoopCanBeConvertedToQuery
+// ReSharper disable PossibleNullReferenceException
+            foreach (var node in projectFile.SelectNodes("x:Project/x:ItemGroup/x:Compile|x:Project/x:ItemGroup/x:None|x:Project/x:ItemGroup/x:Content", nsmgr))
+// ReSharper restore PossibleNullReferenceException
+// ReSharper restore LoopCanBeConvertedToQuery
+                yield return new XmlItem(this, (XmlElement)node);
         }
 
         internal override void FixupProject()
