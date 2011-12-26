@@ -14,7 +14,7 @@ namespace FSharp.ProjectExtender.Commands
         public Refresh()
             : base(Execute, new CommandID(Constants.guidProjectExtenderCmdSet, (int)Constants.cmdidProjectRefresh))
         {
-            BeforeQueryStatus += new EventHandler(QueryStatus);
+            BeforeQueryStatus += QueryStatus;
         }
 
         void QueryStatus(object sender, EventArgs e)

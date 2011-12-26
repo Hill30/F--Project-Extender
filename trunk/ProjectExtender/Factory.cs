@@ -2,12 +2,14 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell.Flavor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
+using IServiceProvider = System.IServiceProvider;
 
 namespace FSharp.ProjectExtender
 {
@@ -90,18 +92,40 @@ namespace FSharp.ProjectExtender
             {
                 var guid = Guid.Empty;
                 int result;
-                ErrorHandler.ThrowOnFailure(GlobalServices.Shell.ShowMessageBox(0, ref guid,
-                    null,
-                    String.Format(FixerWarning, name, projectFile),
-                    null,
-                    0,
-                    OLEMSGBUTTON.OLEMSGBUTTON_OKCANCEL,
-                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_SECOND,
-                    OLEMSGICON.OLEMSGICON_WARNING,
-                    0,
-                    out result));
+                ErrorHandler.ThrowOnFailure(
+                    GlobalServices.Shell.ShowMessageBox(0, ref guid,
+                                                        null,
+                                                        String.Format(FixerWarning, name,
+                                                                      projectFile),
+                                                        null,
+                                                        0,
+                                                        OLEMSGBUTTON.OLEMSGBUTTON_OKCANCEL,
+                                                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_SECOND,
+                                                        OLEMSGICON.OLEMSGICON_WARNING,
+                                                        0,
+                                                        out result));
                 if (result == NativeMethods.IDOK)
-                    fixer.Fixup();
+                {
+                    fixer.FixupProject();
+                    //GlobalServices.SolutionExplorer.ExpandItem((IVsUIHierarchy)project, VSConstants.VSITEMID_ROOT,
+                    //                                           EXPANDFLAGS.EXPF_SelectItem);
+                    //var cmdset = Constants.guidProjectExtenderCmdSet;
+                    //var rc = GlobalServices.Shell.PostExecCommand(ref cmdset, Constants.cmdidFixupAll, 0, null);
+                    //var browseObject = (IVsBrowseObject) value;
+                    //IVsHierarchy hier;
+                    //uint itemId;
+                    //browseObject.GetProjectItem(out hier, out itemId);
+                    //GlobalServices.SolutionExplorer.ExpandItem((IVsUIHierarchy)project, VSConstants.VSITEMID_ROOT,
+                    //                                           EXPANDFLAGS.EXPF_SelectItem);
+                    //var uiHierarachy = (IVsUIHierarchy)project;
+                    //var cmdsetid = Constants.guidStandardCommandSet97;
+                    //uiHierarachy.ExecCommand(itemId, ref cmdsetid, (uint)VSConstants.VSStd97CmdID.ReloadProject,
+                    //                   (uint) OLECMDEXECOPT.OLECMDEXECOPT_DONTPROMPTUSER, IntPtr.Zero, IntPtr.Zero);
+                    //GlobalServices.SolutionExplorer.ExpandItem((IVsUIHierarchy) project, VSConstants.VSITEMID_ROOT,
+                    //                                           EXPANDFLAGS.EXPF_SelectItem);
+                    //GlobalServices.Shell.PostExecCommand(ref cmdsetid, (uint) VSConstants.VSStd97CmdID.ReloadProject, 0,
+                    //                                     null);
+                }
             }
         }
 

@@ -11,7 +11,7 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
         /// <summary>
         /// Adjusts the positions of build elements to ensure the project can be loaded by the FSharp project system
         /// </summary>
-        internal static void FixupProject(IEnumerable<IBuildItem> buildItems)
+        private static void FixupProject(IEnumerable<IBuildItem> buildItems)
         {
 
             var fixupDictionary = new Dictionary<string, int>();
@@ -93,6 +93,11 @@ namespace FSharp.ProjectExtender.MSBuildUtilities.ProjectFixer
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        internal virtual void FixupProject()
+        {
+            FixupProject(this);
         }
     }
 }

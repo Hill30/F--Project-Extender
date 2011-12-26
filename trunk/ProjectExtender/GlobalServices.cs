@@ -1,9 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio;
@@ -30,7 +25,14 @@ namespace FSharp.ProjectExtender
         {
             get
             {
-                return getSolutionExplorer();
+                object pvar = null;
+                IVsWindowFrame frame;
+                var persistenceSlot = new Guid(EnvDTE.Constants.vsWindowKindSolutionExplorer);
+                if (ErrorHandler.Succeeded(Shell.FindToolWindow((uint)__VSFINDTOOLWIN.FTW_fForceCreate, ref persistenceSlot, out frame)))
+                {
+                    ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out pvar));
+                }
+                return (IVsUIHierarchyWindow)pvar;
             }
         }
 
@@ -168,24 +170,6 @@ namespace FSharp.ProjectExtender
             IVsTrackSelectionEx result;
             ErrorHandler.ThrowOnFailure(((IVsMonitorSelection2)SelectionMonitor).GetEmptySelectionContext(out result));
             return result;
-        }
-
-        /// <summary>
-        /// returns a pointer to the solution explorer window. Used to intialize the static pointer
-        /// </summary>
-        /// <returns></returns>
-        private static IVsUIHierarchyWindow getSolutionExplorer()
-        {
-            IVsUIShell shell = Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell;
-            object pvar = null;
-            IVsWindowFrame frame = null;
-            Guid persistenceSlot = new Guid(EnvDTE.Constants.vsWindowKindSolutionExplorer);
-            if (ErrorHandler.Succeeded(shell.FindToolWindow(0, ref persistenceSlot, out frame)))
-            {
-                ErrorHandler.ThrowOnFailure(frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out pvar));
-            }
-            return (IVsUIHierarchyWindow)pvar;
-
         }
 
     }

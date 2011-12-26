@@ -133,9 +133,9 @@ namespace FSharp.ProjectExtender.MSBuildUtilities
             return new BuildItemProxy(buildItemProperty.GetValue(itemNode, new object[] { }));
         }
 
-        internal void FixupProject()
+        internal override void FixupProject()
         {
-            FixupProject(this);
+            base.FixupProject();
 #if VS2008
             projectNode.BuildProject.Save(projectNode.BuildProject.FullFileName);
 #elif VS2010
