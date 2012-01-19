@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -94,6 +94,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\FixNReload.cs" />
     <Compile Include="Commands\ProjectExtender.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -102,6 +103,8 @@
     <Compile Include="GlobalServices.cs" />
     <Compile Include="MSBuildUtilities\BuildItemProxy2008.cs" />
     <Compile Include="MSBuildUtilities\IBuildItem.cs" />
+    <Compile Include="MSBuildUtilities\ProjectFixer\ProjectFixerBase.cs" />
+    <Compile Include="MSBuildUtilities\ProjectFixer\ProjectFixerXML.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Project\Excluded\ExcludedFileNode.cs" />
     <Compile Include="Project\Excluded\ExcludedFolderNode.cs" />

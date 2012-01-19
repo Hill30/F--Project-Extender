@@ -83,7 +83,11 @@ namespace FSharp.ProjectExtender
         private static void Validate(IVsHierarchy project)
         {
             object value;
+#if VS2008
+            ErrorHandler.ThrowOnFailure(project.GetProperty((uint)VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_BrowseObject, out value));
+#elif VS2010
             ErrorHandler.ThrowOnFailure(project.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_BrowseObject, out value));
+#endif
             var browseObjType = value.GetType();
             var name = (string)browseObjType.InvokeMember("Name", BindingFlags.GetProperty, null, value, null);
             var projectFile = (string)browseObjType.InvokeMember("ProjectFile", BindingFlags.GetProperty, null, value, null);

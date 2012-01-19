@@ -4,6 +4,7 @@
   <?define ProductVersionTitle="0.9.1.0" ?>
   <?define VisualStudioRegistryRoot2008 = "Software\Microsoft\VisualStudio\9.0" ?>
   <?define VisualStudioRegistryRoot2010 = "Software\Microsoft\VisualStudio\10.0" ?>
+  <?define VisualStudioRegistryRoot2011 = "Software\Microsoft\VisualStudio\11.0" ?>
   <?define UpgradeCode="{EB7EA168-9F1A-45EF-8EDB-06AC4E4C69D6}"?>
   <Product Id="BB091D95-0F0A-47C8-B4AE-6F1C3EEC79C4" Name="F# Project Extender $(var.ProductVersionTitle)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Hill30" UpgradeCode="$(var.UpgradeCode)">
     <Package InstallerVersion="200" Compressed="yes" />
@@ -20,7 +21,13 @@
     <Property Id="ENVDIR_2010">
       <RegistrySearch Id="RL_EnvironmentDir_2010" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\10.0\Setup\VS" Name="EnvironmentDirectory" Type="directory" />
     </Property>
-   <Property Id="EXTENSIONSHILL30FILES" >
+    <Property Id="ENVDIR_2011">
+      <RegistrySearch Id="RL_EnvironmentDir_2011" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\11.0\Setup\VS" Name="EnvironmentDirectory" Type="directory" />
+    </Property>
+    <Property Id="EXTENSIONSHILL30FILES" >
+      <!--<DirectorySearch Id="hill30filessearch" Path="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc\F# Project System Extender" />-->
+    </Property>
+    <Property Id="EXTENSIONSHILL30FILES_2011" >
       <!--<DirectorySearch Id="hill30filessearch" Path="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc\F# Project System Extender" />-->
     </Property>
     <Property Id="EXTENSIONSFILES">
@@ -30,8 +37,11 @@
     <Property Id="VS2008FOUND">
       <RegistrySearch Id="VS2008found" Type="raw" Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0" Name="InstallDir" />
     </Property>
+    <Property Id="VS2011FOUND">
+          <RegistrySearch Id="VS2011found" Type="raw" Root="HKLM" Key="Software\Microsoft\VisualStudio\11.0" Name="InstallDir" />
+    </Property>
     <Property Id="VS2010FOUND">
-          <RegistrySearch Id="VS2010found" Type="raw" Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0" Name="InstallDir" />
+      <RegistrySearch Id="VS2010found" Type="raw" Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0" Name="InstallDir" />
     </Property>
     <Property Id="VS2008ITEMTEMPLATESLOCATION">
       <RegistrySearch Id="UserItemTemplatesLocation2008" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\9.0" Name="UserItemTemplatesLocation" />
@@ -45,21 +55,35 @@
     <Property Id="VS2010PROJECTTEMPLATESLOCATION">
       <RegistrySearch Id="UserProjectTemplatesLocation2010" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0" Name="UserProjectTemplatesLocation" />
     </Property>
+    <Property Id="VS2011ITEMTEMPLATESLOCATION">
+      <RegistrySearch Id="UserItemTemplatesLocation2011" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\11.0" Name="UserItemTemplatesLocation" />
+    </Property>
+    <Property Id="VS2011PROJECTTEMPLATESLOCATION">
+      <RegistrySearch Id="UserProjectTemplatesLocation2011" Type="raw" Root="HKCU" Key="Software\Microsoft\VisualStudio\11.0" Name="UserProjectTemplatesLocation" />
+    </Property>
     <Property Id="DEVENV_EXE_PATH2008">
       <RegistrySearch Id="RegSearch_DevenvExe_Path2008" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2008)\Setup\VS" Name="EnvironmentPath" Type="raw" />
     </Property>
     <Property Id="DEVENV_EXE_PATH2010">
       <RegistrySearch Id="RegSearch_DevenvExe_Path2010" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2010)\Setup\VS" Name="EnvironmentPath" Type="raw" />
     </Property>
-      <Property Id="VSIX_PATH">
+    <Property Id="DEVENV_EXE_PATH2011">
+      <RegistrySearch Id="RegSearch_DevenvExe_Path2011" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2011)\Setup\VS" Name="EnvironmentPath" Type="raw" />
+    </Property>
+    <Property Id="VSIX_PATH">
           <!--Value="C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE\vsixinstaller.exe"-->
           <!--<RegistrySearch Id="RegSearch_Env_Path2010" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2010)\Setup\VS" Name="EnvironmentDirectory" Type="raw" />-->
       </Property>
-      <Condition Message="This application requires .NET Framework 3.5SP1. Please install the .NET Framework 3.5SP1 then run this installer again.">
+    <Property Id="VSIX_PATH_2011">
+      <!--Value="C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE\vsixinstaller.exe"-->
+      <!--<RegistrySearch Id="RegSearch_Env_Path2010" Root="HKLM" Key="$(var.VisualStudioRegistryRoot2010)\Setup\VS" Name="EnvironmentDirectory" Type="raw" />-->
+    </Property>
+
+    <Condition Message="This application requires .NET Framework 3.5SP1. Please install the .NET Framework 3.5SP1 then run this installer again.">
     <![CDATA[Installed OR (NETFRAMEWORK35_SP_LEVEL and NOT NETFRAMEWORK35_SP_LEVEL = "#0")]]>
     </Condition>
-     <Condition Message="This application requires  at least one of the Visual Studio 2008 or 2010 installed.Please install the Visual Studio 2008 or 2010.Then run this installer again.">
-          <![CDATA[ VS2008FOUND <> NULL OR VS2010FOUND <> NULL ]]>
+     <Condition Message="This application requires  at least one of the Visual Studio 2008 or 2010 or 2011 installed.Please install the Visual Studio 2008 or 2010 or 2011.Then run this installer again.">
+          <![CDATA[ VS2008FOUND <> NULL OR VS2010FOUND <> NULL OR VS2011FOUND <> NULL ]]>
      </Condition>
     <WixVariable Id="WixUILicenseRtf" Value="License.rtf" Overridable="yes" />
     <WixVariable Id="WixUIBannerBmp" Value="bitmaps\bannrbmp.bmp" />
@@ -96,6 +120,19 @@
                     <RegistryValue Root="HKCU" Key="Software\Microsoft\VisualStudio\10.0\ExtensionManager\EnabledExtensions" Name="11152079-c45f-4889-8203-11f9d15a7615,1.0" Type="string" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc\F# Project System Extender\1.0" KeyPath="yes"/>
                 </Component>
             </Directory>
+            <Directory Id="INSTALLDIR2011" Name="ProjectExtender">
+                <Component Id="ProjectExtender2011Files" Guid="3E7B4ECA-D907-43cf-B3E1-6E40BEDAB97B">
+                <RemoveFolder Id="RemoveMain2011" Directory="INSTALLDIR2011" On="uninstall" />
+                <RemoveFolder Id="RemoveExtension2011" Property="EXTENSIONSHILL30FILES" On="uninstall" />
+                <File Id="Extender2011.vsix" Name="ProjectExtender2011.vsix" Source="lib\ProjectExtender2011.vsix" DiskId="1" />
+                <!--<File Id="ExtenderDLL" Name="ProjectExtender2010.dll" Source="lib\ProjectExtender2010.dll" DiskId="1" />
+                    <File Id="ExtenderPKDEF" Name="ProjectExtender2010.pkgdef" Source="lib\ProjectExtender2010.pkgdef" DiskId="1" />
+                    <File Id="Manifest" Name="extension.manifest" Source="lib\extension.vsixmanifest" DiskId="1" />-->
+                <!--<File Id="Readme2010" Name="Readme.txt" ShortName="README.TXT" Source="Readme.txt" />-->
+                <RegistryKey Root="HKCU" Key="Software\Microsoft\VisualStudio\11.0\ExtensionManager\EnabledExtensions" Action="create"/>
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\VisualStudio\11.0\ExtensionManager\EnabledExtensions" Name="11152079-c45f-4889-8203-11f9d15a7615,1.0" Type="string" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\11.0\Extensions\Hill30 Inc\F# Project System Extender\1.0" KeyPath="yes"/>
+              </Component>
+            </Directory>
         </Directory>
      </Directory>
    </Directory>
@@ -110,7 +147,12 @@
             <Condition Level="1"><![CDATA[ VS2010FOUND <> NULL ]]></Condition>
             <ComponentRef Id="ProjectExtender2010Files" />
         </Feature>
-       <Feature Id="Doc" Title="ReadMe" Description="Contains General description of the product" Absent="disallow" AllowAdvertise="no" Level="1" Display="hidden">
+     <Feature Id="Extender2011" Title="Visual Studio 2011 integration" Level="0" Description="VS 2011 Extension" ConfigurableDirectory="INSTALLDIR2011">
+       <Condition Level="1"><![CDATA[ VS2011FOUND <> NULL ]]></Condition>
+       <ComponentRef Id="ProjectExtender2011Files" />
+     </Feature>
+
+     <Feature Id="Doc" Title="ReadMe" Description="Contains General description of the product" Absent="disallow" AllowAdvertise="no" Level="1" Display="hidden">
            <ComponentRef Id="Readme"/>
        </Feature>
     </Feature>
@@ -122,11 +164,15 @@
     <!--<CustomAction Id="CA_DevenvSetup2010" Property="DEVENV_EXE_PATH2010" ExeCommand="/setup"  Impersonate="no" Execute="deferred" />-->
     <CustomAction Id="CA_DevenvSetup2008" Property="DEVENV_EXE_PATH2008" ExeCommand="/setup"  Impersonate="no" Execute="deferred" />
     <!--<CustomAction Id="CA_RunVSIX2010"   Directory="INSTALLDIR2010"  ExeCommand="&quot;cmd.exe&quot;/c &quot;ProjectExtender2010.vsix&quot;" Return="asyncWait" Execute="commit" Impersonate="yes"/>-->
-    <CustomAction Id="CA_RunVSIX2010"   Property = "VSIX_PATH"  ExeCommand="&quot;[INSTALLDIR2010]\ProjectExtender2010.vsix&quot;" Return="asyncWait" Execute="deferred" Impersonate="yes"/>
+    <CustomAction Id="CA_RunVSIX2010"   Property = "VSIX_PATH"  ExeCommand=" /q &quot;[INSTALLDIR2010]\ProjectExtender2010.vsix&quot;" Return="asyncWait" Execute="deferred" Impersonate="yes"/>
+    <CustomAction Id="CA_RunVSIX2011"   Property = "VSIX_PATH_2011"  ExeCommand=" /q &quot;[INSTALLDIR2011]\ProjectExtender2011.vsix&quot;" Return="asyncWait" Execute="deferred" Impersonate="yes"/>
     <CustomAction Id="SetExtensionDir" Property="EXTENSIONHILL30FILES" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\10.0\Extensions\Hill30 Inc"/>
+    <CustomAction Id="SetExtensionDir2011" Property="EXTENSIONHILL30FILES_2011" Value="[LocalAppDataFolder]\Microsoft\VisualStudio\11.0\Extensions\Hill30 Inc"/>
     <CustomActionRef Id="WixFailWhenDeferred" />
     <CustomAction Id="CA_DeleteExtensionFiles" Directory = "INSTALLDIR2010" ExeCommand="&quot;cmd.exe&quot; /c rmdir /s /q &quot;[EXTENSIONHILL30FILES]\F# Project System Extender&quot;" Return="ignore"/>
+    <CustomAction Id="CA_DeleteExtensionFiles2011" Directory = "INSTALLDIR2011" ExeCommand="&quot;[VSIX_PATH_2011]&quot; /u:11152079-c45f-4889-8203-11f9d15a7615  /quiet" Return="ignore"/>
     <CustomAction  Id="SET_VSIX_PATH"  Property="VSIX_PATH" Value="[ENVDIR_2010]\vsixinstaller.exe"/>
+    <CustomAction  Id="SET_VSIX_PATH_2011"  Property="VSIX_PATH_2011" Value="[ENVDIR_2011]\vsixinstaller.exe"/>
     <InstallExecuteSequence>
       <RemoveExistingProducts After="InstallInitialize" />
       <Custom Action="CA_DevenvSetup2008" Before="InstallFinalize" ><![CDATA[&Extender2008 = 3]]></Custom>
@@ -139,6 +185,10 @@
       <!--<Custom Action="EditProjectExtenderPkgdef" After="InstallFinalize">
         <![CDATA[(Not Installed OR (Installer AND REMOVE <> "ALL"))]]>
       </Custom>-->
+      <Custom Action="SET_VSIX_PATH_2011" Before="InstallFinalize"><![CDATA[&Extender2011 = 3 OR &Extender2010 = 2]]></Custom>
+      <Custom Action="CA_RunVSIX2011"  After="SET_VSIX_PATH_2011"><![CDATA[&Extender2011 = 3]]></Custom>
+      <Custom Action="SetExtensionDir2011" After="SET_VSIX_PATH_2011"><![CDATA[&Extender2011 = 2]]></Custom>
+      <Custom Action="CA_DeleteExtensionFiles2011" After="SetExtensionDir2011"><![CDATA[&Extender2011 = 2]]></Custom>
     </InstallExecuteSequence>
     
     <!--<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />-->

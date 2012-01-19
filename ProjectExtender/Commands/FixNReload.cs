@@ -30,8 +30,16 @@ namespace FSharp.ProjectExtender.Commands
                 fixer.FixupProject();
 
             var cmdsetid = Constants.guidStandardCommandSet97;
+
+#if VS2008
+            object pvaIn = null;
+            GlobalServices.Shell.PostExecCommand(ref cmdsetid, (uint)VSConstants.VSStd97CmdID.ReloadProject, 0,
+                                                 ref pvaIn);
+#elif VS2010
             GlobalServices.Shell.PostExecCommand(ref cmdsetid, (uint)VSConstants.VSStd97CmdID.ReloadProject, 0,
                                                  null);
+#endif
+
         }
     }
 }
