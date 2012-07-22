@@ -124,7 +124,8 @@ namespace FSharp.ProjectExtender.Project
             catch (COMException e)
             {
                 // FSharp project returns Guid.Empty as the type guid for reference nodes, which causes the WAP to throw an exception
-                var pinfo = e.GetType().GetProperty("HResult", BindingFlags.Instance | BindingFlags.NonPublic);
+                //var pinfo = e.GetType().GetProperty("HResult", BindingFlags.Instance | BindingFlags.NonPublic);
+                var pinfo = e.GetType().GetProperty("HResult");
                 if ((int)pinfo.GetValue(e, new object[] { }) == VSConstants.DISP_E_MEMBERNOTFOUND)
                     type = Guid.Empty;
                 else

@@ -8,7 +8,7 @@
         <Locale>1033</Locale>
         <InstalledByMsi>false</InstalledByMsi>
         <SupportedProducts>
-            <VisualStudio Version="10.0">
+            <VisualStudio Version="11.0">
                 <Edition>Pro</Edition>
             </VisualStudio>
         </SupportedProducts>
@@ -20,6 +20,6 @@
         </Reference>
     </References>
     <Content>
-        <VsPackage>ProjectExtender2010.pkgdef</VsPackage>
+        <VsPackage>ProjectExtender2011.pkgdef</VsPackage>
     </Content>
 </Vsix>
